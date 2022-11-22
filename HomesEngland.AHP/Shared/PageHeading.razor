@@ -1,0 +1,9 @@
+﻿<h1 class="govuk-heading-xl" style="@Style">@ChildContent</h1>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+}

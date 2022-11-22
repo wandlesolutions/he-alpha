@@ -1,0 +1,82 @@
+﻿@page "/programmes/create"
+@using HomesEngland.AHP.Data;
+<PageHeading>Create programme</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="deployment group">
+        <MainContents>
+           
+                    <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                <FormInputText Id="deploymentGroupName" @bind-Value="CreateModel.ProgrammeName" Label="Programme name"></FormInputText>
+
+                            
+                            <CustomValidation @ref="customValidation"></CustomValidation>
+
+                      
+                            <SubmitButton Disabled="disableSubmitButton" Label="Create programme" />
+                    </FormLayout>
+
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+@code {
+    private Programme CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    //private SelectListItem[]? ResourceTypes;
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation();
+
+        //var tenantResponse = await appPlatform.GetTenant(TenantKey);
+        //if (!tenantResponse.IsSuccessful())
+        //{
+        //    pageState = PageStatus.PreconditionFailed;
+        //}
+        //else
+        //{
+        //    breadcrumbs.Add(new BreadcrumbItem($"/tenants/bykey/{TenantKey}", tenantResponse.Content.TenantName));
+        //    pageState = PageStatus.Visible;
+        //}
+
+        pageState = PageStatus.Visible;
+
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+        if (editContext != null && editContext.Validate())
+        {
+            //var result = await appPlatform.CreateDeploymentGroup(CreateModel);
+            //if (result.StatusCode == System.Net.HttpStatusCode.OK || result.StatusCode == System.Net.HttpStatusCode.Created)
+            //{
+            //    navManager.NavigateTo($"/tenants/bykey/{TenantKey}?createDeploymentGroupSuccessful=true");
+            //}
+            //else
+            //{
+            //    customValidation?.DisplayErrors(result.ModelState);
+            //    disableSubmitButton = false;
+            //    pageState = PageStatus.Visible;
+            //}
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+}

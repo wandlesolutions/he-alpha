@@ -1,0 +1,13 @@
+﻿<div>
+    <HeadingSmall>Actions:</HeadingSmall>
+    @ChildContent
+</div>
+
+
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

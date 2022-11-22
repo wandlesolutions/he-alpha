@@ -1,0 +1,6 @@
+﻿<Inset>@ChildContent</Inset>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

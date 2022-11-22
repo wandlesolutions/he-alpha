@@ -1,0 +1,8 @@
+﻿<div class="govuk-inset-text">
+  @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

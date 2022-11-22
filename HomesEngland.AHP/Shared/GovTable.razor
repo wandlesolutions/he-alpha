@@ -1,0 +1,28 @@
+﻿<table class="govuk-table">
+    @if (!string.IsNullOrWhiteSpace(Caption))
+    {
+        <caption class="govuk-table__caption govuk-table__caption--m">@Caption</caption>
+    }
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+        @Header
+      
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+      @Rows
+  </tbody>
+</table>
+
+
+
+@code {
+    [Parameter]
+    public string? Caption { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment Header { get; set; } 
+    
+    [Parameter, EditorRequired]
+    public RenderFragment Rows { get; set; }
+}

@@ -1,0 +1,9 @@
+﻿<a href="@Href" class="govuk-link">@ChildContent</a>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Href { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

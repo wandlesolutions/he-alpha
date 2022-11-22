@@ -1,0 +1,15 @@
+﻿ <div class="govuk-grid-column-one-third">
+    <HeadingSmall><a class="govuk-link" href="@Href">@Heading</a></HeadingSmall>
+        <Paragraph>@Description</Paragraph>
+    </div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Heading { get; set; }
+    
+    [Parameter, EditorRequired]
+    public string Description { get; set; } 
+    
+    [Parameter, EditorRequired]
+    public string Href { get; set; }
+}

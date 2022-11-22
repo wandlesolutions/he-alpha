@@ -1,0 +1,34 @@
+﻿<FormGroup>
+    <label class="govuk-label" for="@Id">
+        @Label
+    </label>
+    <input class="govuk-input" id="@Id" name="@Id" type="text">
+</FormGroup>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Id { get; set; }
+
+    private string _value;
+
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string DisplayName { get; set; }
+}

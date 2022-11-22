@@ -1,0 +1,6 @@
+﻿<th scope="row" class="govuk-table__header">@ChildContent</th>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

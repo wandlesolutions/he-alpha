@@ -1,0 +1,19 @@
+﻿<button class="govuk-button" data-module="govuk-button" type="submit" disabled="@Disabled" aria-disabled="@AriaDisabled" >
+    @Label
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = default!;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    private string? AriaDisabled
+    {
+        get
+        {
+            return Disabled ? "true" : null;
+        }
+    }
+}

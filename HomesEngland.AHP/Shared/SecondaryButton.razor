@@ -1,0 +1,8 @@
+﻿<button class="govuk-button govuk-button--secondary" data-module="govuk-button">
+    @ChildContent
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

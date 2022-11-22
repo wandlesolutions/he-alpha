@@ -1,0 +1,29 @@
+﻿<EditForm OnSubmit="OnSubmit" EditContext="EditContext">
+
+    <fieldset class="govuk-fieldset">
+        @if (!string.IsNullOrWhiteSpace(Heading))
+        {
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    @Heading
+                </h1>
+            </legend>
+        }
+
+        @ChildContent
+        
+    </fieldset>
+</EditForm>
+@code {
+    [Parameter]
+    public string? Heading { get; set; }
+
+    [Parameter]
+    public EditContext EditContext { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnSubmit { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

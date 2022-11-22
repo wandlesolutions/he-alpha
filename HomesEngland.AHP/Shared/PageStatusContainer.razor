@@ -1,0 +1,72 @@
+﻿@if (PageStatus == PageStatus.Loading)
+{
+    if (LoadingContents != null)
+    {
+        @LoadingContents
+    }
+    else
+    {
+        <LoadingBanner>Loading @EntityName</LoadingBanner>
+    }
+}
+@if (PageStatus == PageStatus.PreconditionFailed)
+{
+    if (PreconditionFailedContents != null)
+    {
+        @PreconditionFailedContents
+    }
+    else
+    {
+        <div>Prerequsites failed while loading @EntityName</div>
+    }
+}
+@if (PageStatus == PageStatus.Visible)
+{
+    @MainContents
+}
+@if (PageStatus == PageStatus.PerformingAction)
+{
+    if (PerformingActionContents != null)
+    {
+        @PerformingActionContents
+    }
+    else
+    {
+        <div>Working on @EntityName</div>
+    }
+}
+@if (PageStatus == PageStatus.Exception)
+{
+    if (ExceptionContents != null)
+    {
+        @ExceptionContents
+    }
+    else
+    {
+        <div>An exception has occurred</div>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public PageStatus PageStatus { get; set; } = PageStatus.Loading;
+
+    [Parameter, EditorRequired]
+    public RenderFragment? MainContents { get; set; }
+
+    [Parameter,]
+    public RenderFragment? LoadingContents { get; set; }
+
+    [Parameter]
+    public RenderFragment? PreconditionFailedContents { get; set; }
+
+    [Parameter]
+    public RenderFragment? PerformingActionContents { get; set; }
+
+    [Parameter]
+    public RenderFragment? ExceptionContents { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? EntityName { get; set; }
+
+}

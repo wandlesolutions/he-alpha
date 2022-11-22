@@ -1,0 +1,6 @@
+﻿<tr class="govuk-table__row">@ChildContent</tr>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

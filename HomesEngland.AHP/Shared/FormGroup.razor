@@ -1,0 +1,9 @@
+﻿<div class="govuk-form-group">
+    @ChildContent
+</div>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

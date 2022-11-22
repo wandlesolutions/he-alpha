@@ -1,0 +1,43 @@
+﻿@page "/programmes"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Programmes</PageTitle>
+@*<PageHeading>Programmes</PageHeading>
+*@@*<ActionLinkContainer>
+    <ActionLink href="/programmes/create">Create programme</ActionLink>
+</ActionLinkContainer>*@
+
+<PageHeadingActionLinkContainer></PageHeadingActionLinkContainer>
+
+@if (Programmes != null && Programmes.Any())
+{
+    <GovTable>
+    <Header>
+        <GovTableHeader>Name</GovTableHeader>
+        <GovTableHeader>Date range</GovTableHeader>
+    </Header>
+    <Rows>
+        <GovTableRow>
+                    <GovTableRowHeader>First item</GovTableRowHeader>
+                    <GovTableData>Here is my data</GovTableData>
+        </GovTableRow>
+    </Rows>
+    </GovTable>
+}
+else
+{
+    <Inset>No programmes are available</Inset>
+}
+
+
+
+@code {
+
+    private IEnumerable<Programme>? Programmes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Programmes = await repo.GetProgrammes();
+    }
+}
