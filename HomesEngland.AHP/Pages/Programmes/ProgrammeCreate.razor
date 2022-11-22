@@ -6,16 +6,16 @@
 <PageContentContainer>
     <PageStatusContainer PageStatus="pageState" EntityName="deployment group">
         <MainContents>
-           
-                    <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
-                <FormInputText Id="deploymentGroupName" @bind-Value="CreateModel.ProgrammeName" Label="Programme name"></FormInputText>
 
-                            
-                            <CustomValidation @ref="customValidation"></CustomValidation>
+            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                <FormInputText Id="programmeName" @bind-Value="CreateModel.ProgrammeName" Label="Programme name"></FormInputText>
 
-                      
-                            <SubmitButton Disabled="disableSubmitButton" Label="Create programme" />
-                    </FormLayout>
+
+                <CustomValidation @ref="customValidation"></CustomValidation>
+
+
+                <SubmitButton Disabled="disableSubmitButton" Label="Create programme" />
+            </FormLayout>
 
         </MainContents>
 
@@ -33,7 +33,7 @@
 
     private PageStatus pageState { get; set; } = PageStatus.Loading;
 
-   
+
 
     protected override async Task OnInitializedAsync()
     {
