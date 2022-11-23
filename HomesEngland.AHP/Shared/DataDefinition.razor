@@ -1,0 +1,8 @@
+﻿<dd class="govuk-summary-list__value">
+    @ChildContent
+</dd>
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+}

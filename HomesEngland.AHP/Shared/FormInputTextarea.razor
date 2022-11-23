@@ -1,0 +1,43 @@
+﻿<FormGroup>
+    <label class="govuk-label" for="@Id">
+        @Label
+    </label>
+    <InputTextArea type="text"
+                   DisplayName="@DisplayName"
+                   id="@Id"
+                   @bind-Value="Value"
+                   rows="@Rows.ToString()"
+                   class="govuk-textarea">
+    </InputTextArea>
+</FormGroup>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Id { get; set; }
+
+    private string _value;
+
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter]
+    public int Rows { get; set; } = 4;
+
+    [Parameter]
+    public string DisplayName { get; set; }
+}

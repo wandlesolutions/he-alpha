@@ -1,26 +1,27 @@
-﻿@page "/admin/programmes/create"
+﻿@page "/admin/features/create"
 @using HomesEngland.AHP.Data;
 @inject IServiceProvider serviceProvider
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
 
-<PageHeading>Create programme</PageHeading>
+<PageHeading>Create feature</PageHeading>
 
 
 <PageContentContainer>
-    <PageStatusContainer PageStatus="pageState" EntityName="deployment group">
+    <PageStatusContainer PageStatus="pageState" EntityName="feature">
         <MainContents>
 
             <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
-                <FormInputText Id="programmeName" @bind-Value="CreateModel.ProgrammeName" Label="Programme name"></FormInputText>
-                <FormInputDate Id="startDate" @bind-Value="CreateModel.Start" Label="Start date"></FormInputDate>
-                <FormInputDate Id="endDate" @bind-Value="CreateModel.Finish" Label="End date"></FormInputDate>
+                <FormInputText Id="programmeName" @bind-Value="CreateModel.FeatureName" Label="Feature name"></FormInputText>
+                <FormInputText Id="featureKey" @bind-Value="CreateModel.FeatureKey" Label="Programmatic key"></FormInputText>
+                <FormInputTextarea Id="description" @bind-Value="CreateModel.Description" Label="Feature description"></FormInputTextarea>
+                
 
 
                 <CustomValidation @ref="customValidation"></CustomValidation>
 
 
-                <SubmitButton Disabled="disableSubmitButton" Label="Create programme" />
+                <SubmitButton Disabled="disableSubmitButton" Label="Create feature" />
             </FormLayout>
 
         </MainContents>
@@ -30,7 +31,7 @@
 
 
 @code {
-    private ProgrammeCreateFormModel CreateModel = new();
+    private FeatureCreateFormModel CreateModel = new();
     private bool disableSubmitButton = false;
     private EditContext? editContext;
 
@@ -68,18 +69,18 @@
         disableSubmitButton = true;
         if (editContext != null && editContext.Validate())
         {
-            Programme programme = new()
+            Feature feature = new()
                 {
-                    Finish = CreateModel.Finish.Value,
-                    ProgrammeName = CreateModel.ProgrammeName,
-                    Start = CreateModel.Start.Value,
+                    FeatureName = CreateModel.FeatureName,
+                    FeatureKey = CreateModel.FeatureKey,
+                    Description = CreateModel.Description,
                 };
 
-            Programme result = await grantRepo.CreateProgramme(programme);
+            Feature result = await grantRepo.CreateFeature(feature);
             
             if (result != null)
             {
-                navManager.NavigateTo($"/admin/programmes/byid/{result.ProgrammeId}?createSuccessful=true");
+                navManager.NavigateTo($"/admin/features?createSuccessful=true");
             }
             else
             {

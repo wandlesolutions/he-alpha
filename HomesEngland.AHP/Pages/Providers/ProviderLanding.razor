@@ -1,0 +1,18 @@
+﻿@page "/providers/bykey/{ProviderId}"
+
+<PageTitle>Affordable Housing Grants</PageTitle>
+
+<PageHeading>Affordable Housing Grants</PageHeading>
+
+<LandingNavigation>
+    <LandingNavigationItem Heading="Schemes" Description="Manage existing granted schemes or apply for additional funding" Href="@($"/providers/bykey/{ProviderId}/schemes")"></LandingNavigationItem>
+    <LandingNavigationItem Heading="Properties" Description="Manage properties as part of schemes" Href="@($"/providers/bykey/{ProviderId}/properties")"></LandingNavigationItem>
+    <LandingNavigationItem Heading="Grant milestones" Description="View and complete milestones for properties" Href="@($"/providers/bykey/{ProviderId}/milestones")"></LandingNavigationItem>
+    <LandingNavigationItem Heading="Expense claims" Description="View and submit an expense claim" Href="@($"/providers/bykey/{ProviderId}/expenses")"></LandingNavigationItem>
+
+</LandingNavigation>
+
+@code {
+    [Parameter]
+    public string ProviderId { get; set; }      
+}

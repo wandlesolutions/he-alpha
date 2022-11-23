@@ -1,0 +1,80 @@
+﻿@page "/admin/programmes/byid/{ProgrammeId:guid}"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>@PageTitle</PageTitle>
+
+@if (CreateSuccessful.HasValue && CreateSuccessful.Value)
+{
+    <NotificationBanner Text="Programme has been created successfully" Title="Information"></NotificationBanner>
+}
+
+
+<PageHeadingActionLinkContainer Heading="@PageTitle">
+    <ActionLinks>
+        <ActionLink Href="@($"/admin/programmes/bykey/{ProgrammeId}/features")">Configure features</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Programme != null)
+{
+    <DataList>
+        <DataRow>
+            <DataTerm>Start date:</DataTerm>
+            <DataDefinition><LiteralDate Value="@Programme.Start"></LiteralDate></DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Finish date:</DataTerm>
+            <DataDefinition><LiteralDate Value="@Programme.Finish"></LiteralDate></DataDefinition>
+        </DataRow>
+    </DataList>
+}
+else
+{
+    <Inset>Programme not found</Inset>
+}
+
+@*@if (Programmes != null && Programmes.Any())
+{
+    <GovTable Items="Programmes" Context="programme">
+        <Header>
+            <GovTableHeader>Name</GovTableHeader>
+            <GovTableHeader>Date range</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableRowHeader>@programme.ProgrammeName</GovTableRowHeader>
+            <GovTableData>
+                <LiteralDate Value="programme.Start"></LiteralDate> to <LiteralDate Value="programme.Finish"></LiteralDate>
+                </GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No programmes are available</Inset>
+}*@
+
+
+
+@code {
+
+    private Programme? Programme { get; set; }
+
+    public string PageTitle { get; set; } = "Programme";
+
+    [Parameter, SupplyParameterFromQuery(Name = "createSuccessful")]
+    public bool? CreateSuccessful { get; set; }
+
+    [Parameter]
+    public Guid ProgrammeId { get; set; }            
+
+    protected override async Task OnInitializedAsync()
+    {
+        Programme = await repo.GetProgramme(ProgrammeId);
+        if(Programme != null)
+        {
+            PageTitle = $"Programme - {Programme.ProgrammeName}";
+        }
+    }
+}

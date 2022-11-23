@@ -1,0 +1,11 @@
+﻿<dl class="govuk-summary-list govuk-summary-list--no-border">
+    @ChildContent
+</dl>
+
+@code {
+    [Parameter]
+    public bool? DisableBorder { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}
