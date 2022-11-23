@@ -1,0 +1,34 @@
+﻿<div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+    <div class="govuk-notification-banner__header">
+        <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+            @Title
+        </h2>
+    </div>
+    <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading">
+            @Text
+
+            @if (!string.IsNullOrWhiteSpace(Href) && !string.IsNullOrWhiteSpace(LinkText))
+            {
+                <a class="govuk-notification-banner__link" href="@Href">@LinkText</a>
+
+                <text>.</text>
+            }
+        </p>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Text { get; set; } = default!;
+    
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = default!;
+
+    [Parameter]
+    public string? Href { get; set; }
+
+    [Parameter]
+    public string? LinkText { get; set; }
+
+}

@@ -1,0 +1,52 @@
+﻿@page "/admin/features"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Features</PageTitle>
+
+@if (CreateSuccessful.HasValue && CreateSuccessful.Value)
+{
+    <NotificationBanner Text="Feature has been created successfully" Title="Information"></NotificationBanner>
+}
+
+
+<PageHeadingActionLinkContainer Heading="Features">
+    <ActionLinks>
+        <ActionLink Href="/admin/features/create">Create feature</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Features != null && Features.Any())
+{
+    <GovTable Items="Features" Context="feature">
+        <Header>
+            <GovTableHeader>Name</GovTableHeader>
+            <GovTableHeader>Description</GovTableHeader>
+            <GovTableHeader>Feature Key</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableRowHeader>@feature.FeatureName</GovTableRowHeader>
+            <GovTableData>@feature.Description</GovTableData>
+            <GovTableData>@feature.FeatureKey</GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No features are available</Inset>
+}
+
+
+
+@code {
+
+    private IEnumerable<Feature>? Features { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "createSuccessful")]
+    public bool? CreateSuccessful { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Features = await repo.GetFeatures();
+    }
+}

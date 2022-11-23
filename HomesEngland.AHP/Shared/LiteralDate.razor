@@ -1,0 +1,6 @@
+﻿<span>@Value.ToString("d MMMM yyyy")</span>
+@code {
+    [Parameter, EditorRequired]
+    public DateTimeOffset Value { get; set; }
+
+}

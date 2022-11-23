@@ -1,0 +1,52 @@
+﻿@page "/admin/programmes"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Programmes</PageTitle>
+
+@if (CreateSuccessful.HasValue && CreateSuccessful.Value)
+{
+    <NotificationBanner Text="Programme has been created successfully" Title="Information"></NotificationBanner>
+}
+
+
+<PageHeadingActionLinkContainer Heading="Programmes">
+    <ActionLinks>
+        <ActionLink Href="/admin/programmes/create">Create programme</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Programmes != null && Programmes.Any())
+{
+    <GovTable Items="Programmes" Context="programme">
+        <Header>
+            <GovTableHeader>Name</GovTableHeader>
+            <GovTableHeader>Date range</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableRowHeader>@programme.ProgrammeName</GovTableRowHeader>
+            <GovTableData>
+                <LiteralDate Value="programme.Start"></LiteralDate> to <LiteralDate Value="programme.Finish"></LiteralDate>
+                </GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No programmes are available</Inset>
+}
+
+
+
+@code {
+
+    private IEnumerable<Programme>? Programmes { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "createSuccessful")]
+    public bool? CreateSuccessful { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Programmes = await repo.GetProgrammes();
+    }
+}

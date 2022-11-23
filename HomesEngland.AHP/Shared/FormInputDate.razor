@@ -1,0 +1,206 @@
+﻿@*<div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+    <FormLabelText Id="@Id">@Label</FormLabelText>
+    <div class="mt-1 sm:mt-0 sm:col-span-2">
+        <InputText type="date"
+                   DisplayName="@DisplayName"
+                   id="@Id"
+                   @bind-Value="ValueText"
+                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+        </InputText>
+    </div>
+</div>*@
+
+<FormGroup>
+
+    <legend class="govuk-fieldset__legend">
+        @Label
+    </legend>
+    <div id="@Id" class="govuk-hint">
+        For example, 27 3 2007
+    </div>
+    @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <p id="@($"{Id}-error")" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span> @ErrorMessage
+        </p>
+    }
+    @{
+        string inputClass = !string.IsNullOrWhiteSpace(ErrorMessage) ? " govuk-input govuk-date-input__input govuk-input--width-2 govuk-input--error" : "govuk-input govuk-date-input__input govuk-input--width-2";
+        string inputClassLarge = !string.IsNullOrWhiteSpace(ErrorMessage) ? " govuk-input govuk-date-input__input govuk-input--width-4 govuk-input--error" : "govuk-input govuk-date-input__input govuk-input--width-4";
+    }
+    <div class="govuk-date-input" id="@Id">
+        <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="@($"{Id}-day")">
+                    Day
+                </label>
+                <InputText class="@inputClass" id="@($"{Id}-day")" name="@($"{Id}-day")" type="text" inputmode="numeric" @bind-Value="ValueTextDay"></InputText>
+            </div>
+        </div>
+        <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="@($"{Id}-month")">
+                    Month
+                </label>
+                <InputText class="@inputClass" id="@($"{Id}-month")" name="@($"{Id}-month")" type="text" inputmode="numeric" @bind-Value="ValueTextMonth"></InputText>
+            </div>
+        </div>
+        <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="@($"{Id}-year")">
+                    Year
+                </label>
+                <InputText class="@inputClassLarge" id="@($"{Id}-year")" name="@($"{Id}-year")" type="text" inputmode="numeric" @bind-Value="ValueTextYear"></InputText>
+            </div>
+        </div>
+    </div>
+</FormGroup>
+@code {
+    [Parameter, EditorRequired]
+    public string Id { get; set; }
+
+    private DateTimeOffset? _value;
+    private string? _valueText;
+    private string? _valueDay;
+    private string? _valueMonth;
+    private string? _valueYear;
+
+    private string? ValueTextDay
+    {
+        get
+        {
+            return _valueDay;
+        }
+        set
+        {
+            if (_valueDay == value) return;
+            _valueDay = value;
+            SetDateFromFormValues();
+        }
+
+    }
+
+    private string? ValueTextMonth
+    {
+        get
+        {
+            return _valueMonth;
+        }
+        set
+        {
+            if (_valueMonth == value) return;
+            _valueMonth = value;
+            SetDateFromFormValues();
+        }
+    }
+
+    private string? ValueTextYear
+    {
+        get
+        {
+            return _valueYear;
+        }
+        set
+        {
+            if (_valueYear == value) return;
+            _valueYear = value;
+            SetDateFromFormValues();
+        }
+    }
+
+    private void SetDateFromFormValues()
+    {
+        if (string.IsNullOrWhiteSpace(ValueTextDay) || string.IsNullOrWhiteSpace(ValueTextMonth) || string.IsNullOrWhiteSpace(ValueTextYear))
+        {
+            Value = null;
+            ErrorMessage = null;
+            return;
+        }
+
+        if (int.TryParse(ValueTextDay, out var day) && int.TryParse(ValueTextMonth, out var month) && int.TryParse(ValueTextYear, out var year))
+        {
+            try
+            {
+                Value = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
+                IsValid = true;
+                ErrorMessage = null;
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                IsValid = false;
+                ErrorMessage = "The date provided is not valid";
+                _value = null;
+                Value = null;
+                ValueChanged.InvokeAsync(null);
+            }
+        }
+        else
+        {
+            Value = null;
+            ErrorMessage = null;
+        }
+
+    }
+
+    //public string ValueText
+    //{
+    //    get
+    //    {
+    //        return _valueText;
+    //    }
+    //    set
+    //    {
+    //        if (value != _valueText)
+    //        {
+    //            _valueText = value;
+    //            if (DateTimeOffset.TryParse(value, out DateTimeOffset parseValue))
+    //            {
+    //                Value = parseValue;
+    //            }
+    //            else
+    //            {
+    //                Value = null;
+    //                _value = null;
+    //            }
+    //        }
+    //    }
+    //}
+
+    public bool IsValid { get; set; } = true;
+
+    public string? ErrorMessage { get; set; }
+
+    [Parameter]
+    public DateTimeOffset? Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            if (value.HasValue)
+            {
+                //ValueText = value.Value.ToString("yyyy-MM-dd");
+                _valueDay = value.Value.Day.ToString();
+                _valueMonth = value.Value.Month.ToString();
+                _valueYear = value.Value.Year.ToString();
+            }
+            else
+            {
+                _valueDay = null;
+                _valueMonth = null;
+                _valueYear = null;
+            }
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<DateTimeOffset?> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string DisplayName { get; set; }
+}

@@ -1,5 +1,9 @@
-﻿@page "/programmes/create"
+﻿@page "/admin/programmes/create"
 @using HomesEngland.AHP.Data;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
 <PageHeading>Create programme</PageHeading>
 
 
@@ -9,6 +13,8 @@
 
             <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                 <FormInputText Id="programmeName" @bind-Value="CreateModel.ProgrammeName" Label="Programme name"></FormInputText>
+                <FormInputDate Id="startDate" @bind-Value="CreateModel.Start" Label="Start date"></FormInputDate>
+                <FormInputDate Id="endDate" @bind-Value="CreateModel.Finish" Label="End date"></FormInputDate>
 
 
                 <CustomValidation @ref="customValidation"></CustomValidation>
@@ -22,8 +28,9 @@
     </PageStatusContainer>
 </PageContentContainer>
 
+
 @code {
-    private Programme CreateModel = new();
+    private ProgrammeCreateFormModel CreateModel = new();
     private bool disableSubmitButton = false;
     private EditContext? editContext;
 
@@ -38,7 +45,7 @@
     protected override async Task OnInitializedAsync()
     {
         editContext = new(CreateModel);
-        editContext.EnableDataAnnotationsValidation();
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
 
         //var tenantResponse = await appPlatform.GetTenant(TenantKey);
         //if (!tenantResponse.IsSuccessful())
@@ -61,17 +68,25 @@
         disableSubmitButton = true;
         if (editContext != null && editContext.Validate())
         {
-            //var result = await appPlatform.CreateDeploymentGroup(CreateModel);
-            //if (result.StatusCode == System.Net.HttpStatusCode.OK || result.StatusCode == System.Net.HttpStatusCode.Created)
-            //{
-            //    navManager.NavigateTo($"/tenants/bykey/{TenantKey}?createDeploymentGroupSuccessful=true");
-            //}
-            //else
-            //{
-            //    customValidation?.DisplayErrors(result.ModelState);
-            //    disableSubmitButton = false;
-            //    pageState = PageStatus.Visible;
-            //}
+            Programme programme = new()
+                {
+                    Finish = CreateModel.Finish.Value,
+                    ProgrammeName = CreateModel.ProgrammeName,
+                    Start = CreateModel.Start.Value,
+                };
+
+            Programme result = await grantRepo.CreateProgramme(programme);
+            
+            if (result != null)
+            {
+                navManager.NavigateTo($"/admin/programmes/bykey/{result.ProgrammeId}/features?createSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
         }
         else
         {

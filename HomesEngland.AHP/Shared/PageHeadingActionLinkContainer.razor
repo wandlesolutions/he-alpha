@@ -1,10 +1,14 @@
 ﻿<div style="display: flex">
-    <PageHeading Style="flex-grow: 1">Programmes</PageHeading>
+    <PageHeading Style="flex-grow: 1">@Heading</PageHeading>
     <ActionLinkContainer>
-        <ActionLink Href="/programmes/create">Create programme</ActionLink>
+        @ActionLinks
     </ActionLinkContainer>
 </div>
 
 @code {
+    [Parameter, EditorRequired]
+    public string Heading { get; set; } = default!;
 
+    [Parameter, EditorRequired]
+    public RenderFragment ActionLinks { get; set; } = default!;
 }

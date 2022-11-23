@@ -1,4 +1,7 @@
-﻿<table class="govuk-table">
+﻿@using System.Diagnostics.CodeAnalysis;
+@typeparam TItem
+
+<table class="govuk-table">
     @if (!string.IsNullOrWhiteSpace(Caption))
     {
         <caption class="govuk-table__caption govuk-table__caption--m">@Caption</caption>
@@ -10,7 +13,15 @@
     </tr>
   </thead>
   <tbody class="govuk-table__body">
-      @Rows
+      @foreach (var item in Items)
+            {
+                if (RowTemplate is not null)
+                {
+                    <GovTableRow>
+                    @RowTemplate(item)
+                    </GovTableRow>
+                }
+            }
   </tbody>
 </table>
 
@@ -23,6 +34,9 @@
     [Parameter, EditorRequired]
     public RenderFragment Header { get; set; } 
     
-    [Parameter, EditorRequired]
-    public RenderFragment Rows { get; set; }
+    [Parameter]
+    public RenderFragment<TItem>? RowTemplate { get; set; }
+
+    [Parameter, AllowNull]
+    public IEnumerable<TItem> Items { get; set; }
 }

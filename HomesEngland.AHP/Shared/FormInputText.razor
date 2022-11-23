@@ -2,7 +2,7 @@
     <label class="govuk-label" for="@Id">
         @Label
     </label>
-    <input class="govuk-input" id="@Id" name="@Id" type="text">
+    <InputText DisplayName="@DisplayName" @bind-Value="Value" class="govuk-input" id="@Id" name="@Id" type="text"></InputText>
 </FormGroup>
 
 @code {
