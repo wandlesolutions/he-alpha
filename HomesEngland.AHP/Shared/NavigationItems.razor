@@ -1,0 +1,38 @@
+﻿@if (Items != null && Items.Count > 0)
+{
+                        <ul id="navigation" class="govuk-header__navigation-list">
+        @foreach (var item in Items)
+        {
+            string cssClass = item.Selected ? "govuk-header__navigation-item govuk-header__navigation-item--active" : "govuk-header__navigation-item";
+
+                                    <li class="@cssClass">
+                                        <a class="govuk-header__link" href="@item.Url">
+                    @item.Text
+                                        </a>
+                                    </li>
+        }
+
+                        </ul>
+}
+
+@code {
+    private List<NavigationItem>? _items = null;
+
+    [Parameter,EditorRequired]
+    public List<NavigationItem>? Items { get
+        {
+            return _items;
+        }
+
+        set
+        {
+            _items = value;
+            ItemsChanged.InvokeAsync(value);
+            StateHasChanged();
+
+        }
+    }
+
+    public EventCallback<List<NavigationItem>?> ItemsChanged { get; set; }
+
+}
