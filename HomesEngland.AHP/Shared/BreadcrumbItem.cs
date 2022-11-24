@@ -23,6 +23,12 @@ public class BreadcrumbItem : IEquatable<BreadcrumbItem>
 		new BreadcrumbItem("/admin", "Admin"),
 	};
 
+	public static List<BreadcrumbItem> ProviderBase() => new()
+	{
+		new BreadcrumbItem("/", "P.A.N.O.S"),
+		new BreadcrumbItem("/providers", "Login as provider"),
+	};
+
 	public static List<BreadcrumbItem> Home() => new()
 	{
 		new BreadcrumbItem("/", "P.A.N.O.S"),

@@ -3,28 +3,44 @@
 @inject IGrantRepository grantRepo
 
 <PageTitle>Affordable Housing Grants</PageTitle>
+@if (Provider != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Provider.ProviderName</Caption>
 
-<Caption CaptionSize="CaptionSize.Large">@ProviderName</Caption>
 
-<PageHeading>Affordable Housing Grants</PageHeading>
+    <PageHeading>Affordable Housing Grants</PageHeading>
 
-<LandingNavigation>
-    <LandingNavigationItem Heading="Schemes" Description="Manage existing granted schemes or apply for additional funding" Href="@($"/providers/bykey/{ProviderId}/schemes")"></LandingNavigationItem>
-    <LandingNavigationItem Heading="Properties" Description="Manage properties as part of schemes" Href="@($"/providers/bykey/{ProviderId}/properties")"></LandingNavigationItem>
-    <LandingNavigationItem Heading="Grant milestones" Description="View and complete milestones for properties" Href="@($"/providers/bykey/{ProviderId}/milestones")"></LandingNavigationItem>
-    <LandingNavigationItem Heading="Expense claims" Description="View and submit an expense claim" Href="@($"/providers/bykey/{ProviderId}/expenses")"></LandingNavigationItem>
+    <LandingNavigation>
+        <LandingNavigationItem Heading="Schemes" Description="Manage existing granted schemes or apply for additional funding" Href="@($"/providers/bykey/{ProviderId}/schemes")"></LandingNavigationItem>
+        <LandingNavigationItem Heading="Properties" Description="Manage properties as part of schemes" Href="@($"/providers/bykey/{ProviderId}/properties")"></LandingNavigationItem>
+        <LandingNavigationItem Heading="Grant milestones" Description="View and complete milestones for properties" Href="@($"/providers/bykey/{ProviderId}/milestones")"></LandingNavigationItem>
+        <LandingNavigationItem Heading="Expense claims" Description="View and submit an expense claim" Href="@($"/providers/bykey/{ProviderId}/expenses")"></LandingNavigationItem>
 
-</LandingNavigation>
+    </LandingNavigation>
+}
+else
+{
+    <Inset>Provider not found</Inset>
+}
 
 @code {
     [Parameter]
     public Guid ProviderId { get; set; }
 
-    private string? ProviderName;
+    private Provider? Provider;
 
     protected override async Task OnInitializedAsync()
     {
         var provider = await grantRepo.GetProvider(ProviderId);
-        ProviderName = provider.ProviderName;
+        Provider = provider;
+    }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                    BreadcrumbItem.ProviderBase());
     }
 }

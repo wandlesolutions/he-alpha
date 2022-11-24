@@ -22,4 +22,10 @@ public static class BreadcrumbItemExtensionMethods
 		breadcrumbItems.Add(new BreadcrumbItem("/admin/programmes", "Programmes"));
 		return breadcrumbItems;
 	}
+	public static List<BreadcrumbItem> AddProvider(this List<BreadcrumbItem> breadcrumbItems, Provider provider)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}", provider.ProviderName));
+		return breadcrumbItems;
+	}
+
 }
