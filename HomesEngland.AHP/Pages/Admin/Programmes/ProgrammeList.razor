@@ -25,7 +25,9 @@
             <GovTableHeader>Action</GovTableHeader>
         </Header>
         <RowTemplate>
-            <GovTableRowHeader>@programme.ProgrammeName</GovTableRowHeader>
+            <GovTableRowHeader>
+                <GovLink Href="@($"/admin/programmes/byid/{programme.ProgrammeId}")">@programme.ProgrammeName</GovLink>
+                </GovTableRowHeader>
             <GovTableData>
                 <LiteralDate Value="programme.Start"></LiteralDate> to <LiteralDate Value="programme.Finish"></LiteralDate>
             </GovTableData>
@@ -48,9 +50,20 @@ else
 
     [Parameter, SupplyParameterFromQuery(Name = "createSuccessful")]
     public bool? CreateSuccessful { get; set; }
-
+    
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+    
     protected override async Task OnInitializedAsync()
     {
         Programmes = await repo.GetProgrammes();
+    }
+    
+  
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                BreadcrumbItem.AdminBase());
     }
 }

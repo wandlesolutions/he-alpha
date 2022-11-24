@@ -1,5 +1,6 @@
 ﻿@page "/admin/programmes/byid/{ProgrammeId:guid}/features"
 @using HomesEngland.AHP.Data;
+@using HomesEngland.AHP;
 @inject IGrantRepository repo
 
 <PageTitle>Programme Features</PageTitle>
@@ -60,8 +61,28 @@ else
 
     public string? ModifyMessage { get; set; }
 
+    [ CascadingParameter()]
+    public MainLayout MainLayout { get; set; }
+
     [Parameter]
     public Guid ProgrammeId { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if(Programme != null)
+        {
+            MainLayout.SetBreadcrumbs(
+                BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes()
+                .AddAdminProgramme(Programme));
+        }
+        else
+        {
+            BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes();
+        }
+
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,6 +92,9 @@ else
         {
             var features = await repo.GetFeatures();
             var existingToggles = await repo.GetProgrammeFeatures(ProgrammeId);
+
+          //  MainLayout.Breadcrumbs.Items = BreadcrumbItem.AdminBase();
+          //  MainLayout.Breadcrumbs.Items.AddAdminProgramme(Programme);
 
             List<ProgrammeFeatureToggle> programmeFeatures = new();
             foreach (var feature in features)

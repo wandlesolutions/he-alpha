@@ -1,8 +1,33 @@
 ﻿@inherits LayoutComponentBase
 
 <PageTitle>HomesEngland.AHP</PageTitle>
+<CascadingValue Value="this">
+    <Breadcrumbs Items="BreadcrumbItems"></Breadcrumbs>
 
-<main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
-    @Body
 
-</main>
+    <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">
+        @Body
+
+    </main>
+
+</CascadingValue>
+
+@code {
+
+    private List<BreadcrumbItem> BreadcrumbItems { get; set; } = new List<BreadcrumbItem>()
+    {
+
+    };
+
+    public void SetBreadcrumbs(List<BreadcrumbItem> breadcrumbs)
+    {
+        bool sameItems = breadcrumbs.Count == BreadcrumbItems.Count && !breadcrumbs.Except(BreadcrumbItems).Any();
+        if (!sameItems)
+        {
+            BreadcrumbItems.Clear();
+            BreadcrumbItems.AddRange(breadcrumbs);
+            StateHasChanged();
+        }
+      
+    }
+}

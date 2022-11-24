@@ -12,7 +12,7 @@
 
 <PageHeadingActionLinkContainer Heading="@PageTitle">
     <ActionLinks>
-        <ActionLink Href="@($"/admin/programmes/bykey/{ProgrammeId}/features")">Configure features</ActionLink>
+        <ActionLink Href="@($"/admin/programmes/byid/{ProgrammeId}/features")">Configure features</ActionLink>
     </ActionLinks>
 </PageHeadingActionLinkContainer>
 
@@ -67,14 +67,24 @@ else
     public bool? CreateSuccessful { get; set; }
 
     [Parameter]
-    public Guid ProgrammeId { get; set; }            
+    public Guid ProgrammeId { get; set; }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Programme = await repo.GetProgramme(ProgrammeId);
-        if(Programme != null)
+        if (Programme != null)
         {
             PageTitle = $"Programme - {Programme.ProgrammeName}";
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+            BreadcrumbItem.AdminBase()
+             .AddAdminProgrammes());
     }
 }
