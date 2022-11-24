@@ -25,6 +25,28 @@ public class SqlGrantRepository : IGrantRepository
 		return programme;
 	}
 
+	public async Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
+	{
+		await _context.ProgrammeFeatures.AddAsync(programmeFeature);
+		await _context.SaveChangesAsync();
+		return programmeFeature;
+	}
+
+	public async Task<Provider> CreateProvider(Provider provider)
+	{
+		await _context.Providers.AddAsync(provider);
+		await _context.SaveChangesAsync();
+		return provider;
+	}
+
+	public async Task DeleteProgrammeFeature(Guid programmeFeatureId)
+	{
+		var programmeFeature = await _context.ProgrammeFeatures
+			.Where(_ => _.ProgrammeFeatureId == programmeFeatureId)
+			.ExecuteDeleteAsync();
+		await _context.SaveChangesAsync();
+	}
+
 	public async Task<IEnumerable<Feature>> GetFeatures()
 	{
 		return await _context.Features.OrderBy(_ => _.FeatureName).ToListAsync();
@@ -35,8 +57,23 @@ public class SqlGrantRepository : IGrantRepository
 		return await _context.Programmes.SingleOrDefaultAsync(_ => _.ProgrammeId == programmeId);
 	}
 
+	public async Task<IEnumerable<ProgrammeFeature>> GetProgrammeFeatures(Guid programmeId)
+	{
+		return await _context.ProgrammeFeatures.Where(_ => _.ProgrammeId == programmeId).ToListAsync();
+	}
+
 	public async Task<IEnumerable<Programme>> GetProgrammes()
 	{
 		return await _context.Programmes?.OrderBy(_ => _.ProgrammeName).ToListAsync();
+	}
+
+	public async Task<Provider?> GetProvider(Guid providerId)
+	{
+		return await _context.Providers.SingleOrDefaultAsync(_ => _.ProviderId == providerId);
+	}
+
+	public async Task<IEnumerable<Provider>> GetProviders()
+	{
+		return await _context.Providers?.OrderBy(_ => _.ProviderName).ToListAsync();
 	}
 }

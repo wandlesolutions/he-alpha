@@ -1,0 +1,23 @@
+﻿<span class="@CaptionCssClass">@ChildContent</span>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public CaptionSize CaptionSize { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    private string CaptionCssClass
+    {
+        get {
+            return CaptionSize switch
+            {
+                CaptionSize.Medium => "govuk-caption-m",
+                CaptionSize.Large => "govuk-caption-l",
+                CaptionSize.ExtraLarge => "govuk-caption-xl",
+                _ => throw new ArgumentOutOfRangeException(nameof(CaptionSize), CaptionSize, null)
+            };
+        }    
+    }
+}

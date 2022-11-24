@@ -1,0 +1,12 @@
+﻿<button type="button" @onclick="OnClick" class="govuk-button" disabled="@Disabled" data-module="govuk-button">@ChildContent</button>
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+}

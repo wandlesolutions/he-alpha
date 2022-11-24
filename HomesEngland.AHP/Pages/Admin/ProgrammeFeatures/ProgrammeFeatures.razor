@@ -1,0 +1,139 @@
+﻿@page "/admin/programmes/byid/{ProgrammeId:guid}/features"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Programme Features</PageTitle>
+
+@if (!string.IsNullOrWhiteSpace(ModifyMessage))
+{
+    <NotificationBanner Text="@ModifyMessage" Title="Features updated"></NotificationBanner>
+}
+
+@if (Programme != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Programme.ProgrammeName</Caption>
+}
+
+<PageHeading>Programme features</PageHeading>
+
+
+@if (Programme != null)
+{
+    @if (ProgrameFeatures != null && ProgrameFeatures.Any())
+    {
+
+
+        <GovTable Items="ProgrameFeatures" Context="toggle">
+            <Header>
+                <GovTableHeader>Name</GovTableHeader>
+                <GovTableHeader>Description</GovTableHeader>
+                <GovTableHeader>Enabled</GovTableHeader>
+            </Header>
+            <RowTemplate>
+                <GovTableRowHeader>@toggle.FeatureName</GovTableRowHeader>
+                <GovTableData>
+                    @toggle.Description
+                </GovTableData>
+                <GovTableData>
+                    <GovEnableDisable @bind-Value="toggle.Toggled" Name="@toggle.FeatureId.ToString()"></GovEnableDisable>
+                </GovTableData>
+            </RowTemplate>
+        </GovTable>
+
+        <GovButton OnClick="SaveToggles">Update programme features</GovButton>
+    }
+    else
+    {
+        <Inset>No programme features are available</Inset>
+    }
+}
+else
+{
+    <Inset>Programme not found</Inset>
+}
+
+@code {
+
+    private Programme? Programme { get; set; }
+
+    private IEnumerable<ProgrammeFeatureToggle>? ProgrameFeatures { get; set; }
+
+    public string? ModifyMessage { get; set; }
+
+    [Parameter]
+    public Guid ProgrammeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Programme = await repo.GetProgramme(ProgrammeId);
+
+        if (Programme != null)
+        {
+            var features = await repo.GetFeatures();
+            var existingToggles = await repo.GetProgrammeFeatures(ProgrammeId);
+
+            List<ProgrammeFeatureToggle> programmeFeatures = new();
+            foreach (var feature in features)
+            {
+                ProgrammeFeatureToggle toggle = new()
+                    {
+                        FeatureName = feature.FeatureName,
+                        FeatureId = feature.FeatureId,
+                        Description = feature.Description,
+                    };
+
+                if (existingToggles.Any(_ => _.FeatureId == feature.FeatureId))
+                {
+                    toggle.Toggled = GovEnabledValue.Yes;
+                }
+                else
+                {
+                    toggle.Toggled = GovEnabledValue.No;
+                }
+
+                programmeFeatures.Add(toggle);
+            }
+
+            ProgrameFeatures = programmeFeatures.AsEnumerable();
+        }
+    }
+
+    public async Task SaveToggles()
+    {
+        var existingToggles = await repo.GetProgrammeFeatures(ProgrammeId);
+
+        int addedFeatures = 0;
+        int removedFeatures = 0;
+
+        foreach (var toggle in ProgrameFeatures)
+        {
+            if (toggle.Toggled == GovEnabledValue.Yes)
+            {
+                if (!existingToggles.Any(_ => _.FeatureId == toggle.FeatureId))
+                {
+                    // Add ProgrammeFeature
+                    var programmeFeature = new ProgrammeFeature()
+                        {
+                            FeatureId = toggle.FeatureId,
+                            ProgrammeId = ProgrammeId,
+                        };
+
+                    await repo.CreateProgrammeFeature(programmeFeature);
+                    addedFeatures++;
+                }
+            }
+            else
+            {
+                var existingEnabledToggle = existingToggles.SingleOrDefault(_ => _.FeatureId == toggle.FeatureId);
+                if (existingEnabledToggle != null)
+                {
+                    await repo.DeleteProgrammeFeature(existingEnabledToggle.ProgrammeFeatureId);
+                    removedFeatures++;
+                }
+            }
+        }
+
+        ModifyMessage = $"Saved features for programme, added {addedFeatures} and removed {removedFeatures} features";
+    }
+
+}

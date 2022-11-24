@@ -22,12 +22,16 @@
         <Header>
             <GovTableHeader>Name</GovTableHeader>
             <GovTableHeader>Date range</GovTableHeader>
+            <GovTableHeader>Action</GovTableHeader>
         </Header>
         <RowTemplate>
             <GovTableRowHeader>@programme.ProgrammeName</GovTableRowHeader>
             <GovTableData>
                 <LiteralDate Value="programme.Start"></LiteralDate> to <LiteralDate Value="programme.Finish"></LiteralDate>
-                </GovTableData>
+            </GovTableData>
+            <GovTableData>
+                <GovLink Href="@($"admin/programmes/byid/{programme.ProgrammeId}/features")">Manage features</GovLink>
+            </GovTableData>
         </RowTemplate>
     </GovTable>
 }

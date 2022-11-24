@@ -1,0 +1,92 @@
+﻿@page "/providers/create"
+@using HomesEngland.AHP.Data;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
+<PageHeading>Create provider</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="provider">
+        <MainContents>
+
+            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                <FormInputText Id="programmeName" @bind-Value="CreateModel.ProviderName" Label="Provider name"></FormInputText>
+
+                <CustomValidation @ref="customValidation"></CustomValidation>
+
+
+                <SubmitButton Disabled="disableSubmitButton" Label="Create provider" />
+            </FormLayout>
+
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private ProviderCreateFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    //private SelectListItem[]? ResourceTypes;
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        //var tenantResponse = await appPlatform.GetTenant(TenantKey);
+        //if (!tenantResponse.IsSuccessful())
+        //{
+        //    pageState = PageStatus.PreconditionFailed;
+        //}
+        //else
+        //{
+        //    breadcrumbs.Add(new BreadcrumbItem($"/tenants/bykey/{TenantKey}", tenantResponse.Content.TenantName));
+        //    pageState = PageStatus.Visible;
+        //}
+
+        pageState = PageStatus.Visible;
+
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+        if (editContext != null && editContext.Validate())
+        {
+            Provider provider = new()
+                {
+                    ProviderName = CreateModel.ProviderName,
+                };
+
+            Provider result = await grantRepo.CreateProvider(provider);
+
+            if (result != null)
+            {
+                navManager.NavigateTo($"/providers/byid/{result.ProviderId}?createSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+}

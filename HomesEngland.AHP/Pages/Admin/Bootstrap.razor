@@ -1,0 +1,66 @@
+﻿@page "/admin/bootstrap"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository grantRepo
+
+<PageTitle>Setup reference data in P.A.N.O.S</PageTitle>
+
+@if (ShowReferenceDataBanner)
+{
+    <NotificationBanner Title="Reference data" Text="Reference data has been successfully populated"></NotificationBanner>
+}
+
+<Caption CaptionSize="CaptionSize.Large">Initial system setup</Caption>
+<PageHeading>Setup reference data</PageHeading>
+
+<Paragraph>Populate core reference data such as financial years and features</Paragraph>
+
+<GovButton OnClick="PopulateReferenceData">Populate reference data</GovButton>
+
+@code {
+    private bool ShowReferenceDataBanner { get; set; } = false;
+
+    private async Task PopulateReferenceData()
+    {
+        var features = await grantRepo.GetFeatures();
+
+        await EnsureFeature(features, new Feature()
+        {
+            FeatureName = "Provider can create properties",
+            FeatureKey = "ProviderCanCreateProperties",
+            Description = "Enables a provider to create properties under a scheme in the portal",
+        });
+
+        await EnsureFeature(features, new Feature()
+            {
+                FeatureName = "Provider can create schemes",
+                FeatureKey = "ProviderCanCreateSchemes",
+                Description = "A provider can create schemes under a programme in the portal",
+            });
+
+        await EnsureFeature(features, new Feature()
+            {
+                FeatureName = "Expense claims",
+                FeatureKey = "EnableExpenseClaims",
+                Description = "Expenses can be submitted by the provider in this programme for properties",
+            });
+
+        await EnsureFeature(features, new Feature()
+            {
+                FeatureName = "Grant milestones",
+                FeatureKey = "GrantMilestones",
+                Description = "Programme will have support for grant milestones within schemes",
+            });
+
+        ShowReferenceDataBanner = true;
+    }
+
+    private async Task EnsureFeature(IEnumerable<Feature> features, Feature feature)
+    {
+        if (features.Any(f => f.FeatureKey == feature.FeatureKey))
+        {
+            return;
+        }
+
+        await grantRepo.CreateFeature(feature);
+    }
+}

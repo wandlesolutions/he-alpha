@@ -26,6 +26,15 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "httpsRemote": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://10.10.7.9:8000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

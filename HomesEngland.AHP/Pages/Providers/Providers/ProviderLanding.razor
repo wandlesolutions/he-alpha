@@ -1,6 +1,10 @@
-﻿@page "/providers/bykey/{ProviderId}"
+﻿@page "/providers/byid/{ProviderId:guid}"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository grantRepo
 
 <PageTitle>Affordable Housing Grants</PageTitle>
+
+<Caption CaptionSize="CaptionSize.Large">@ProviderName</Caption>
 
 <PageHeading>Affordable Housing Grants</PageHeading>
 
@@ -14,5 +18,13 @@
 
 @code {
     [Parameter]
-    public string ProviderId { get; set; }      
+    public Guid ProviderId { get; set; }
+
+    private string? ProviderName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var provider = await grantRepo.GetProvider(ProviderId);
+        ProviderName = provider.ProviderName;
+    }
 }

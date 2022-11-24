@@ -1,0 +1,42 @@
+﻿@page "/providers"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Provider login</PageTitle>
+
+
+<PageHeadingActionLinkContainer Heading="Login as provider">
+    <ActionLinks>
+        <ActionLink Href="/providers/create">Add new provider</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Providers != null && Providers.Any())
+{
+    <GovTable Items="Providers" Context="provider">
+        <Header>
+            <GovTableHeader>Provider name</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableData>
+                <GovLink Href="@($"/providers/byid/{provider.ProviderId}")">@provider.ProviderName</GovLink>
+            </GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No providers are available</Inset>
+}
+
+
+
+@code {
+
+    private IEnumerable<Provider>? Providers { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Providers = await repo.GetProviders();
+    }
+}

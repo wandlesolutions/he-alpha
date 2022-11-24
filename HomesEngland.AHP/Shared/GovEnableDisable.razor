@@ -1,0 +1,46 @@
+﻿<div class="govuk-form-group">
+    <fieldset class="govuk-fieldset" style="min-width:200px" aria-describedby="changed-name-hint">
+        <InputRadioGroup @bind-Value="Value" Name="@Name">
+
+            
+       
+        <div class="govuk-radios govuk-radios--inline govuk-radios--small" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+                <InputRadio class="govuk-radios__input"  Name="@Name" Value="@GovEnabledValue.Yes"></InputRadio>
+                <label class="govuk-label govuk-radios__label" for="changed-name">
+                    Yes
+                </label>
+            </div>
+            <div class="govuk-radios__item">
+                    <InputRadio class="govuk-radios__input"  Name="@Name" Value="@GovEnabledValue.No"></InputRadio>
+                    <label class="govuk-label govuk-radios__label" for="changed-name-2">
+                    No
+                </label>
+            </div>
+        </div>
+        </InputRadioGroup>
+    </fieldset>
+</div>
+
+@code {
+    
+    private GovEnabledValue _value;
+
+    [Parameter]
+    public GovEnabledValue Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<GovEnabledValue> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Name { get; set; }
+}
