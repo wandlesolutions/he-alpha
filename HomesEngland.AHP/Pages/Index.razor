@@ -10,3 +10,13 @@
     <LandingNavigationItem Heading="Administer" Description="Configure P.A.N.O.S features and system settings" Href="/admin"></LandingNavigationItem>
 
 </LandingNavigation>
+
+@code{
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(new());
+    }
+}
