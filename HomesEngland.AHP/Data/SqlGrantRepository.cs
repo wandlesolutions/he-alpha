@@ -90,6 +90,16 @@ public class SqlGrantRepository : IGrantRepository
 			.ToListAsync();
 	}
 
+	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
+	{
+		// Return programmes where feature key has value of 'ProviderCanCreateSchemes'
+		return await _context.ProgrammeFeatures
+			.Where(_ => _.Feature.FeatureKey == FeatureToggles.ProviderCanCreateSchemes)
+			.Select(_ => _.Programme)
+			.Distinct()
+			.ToListAsync();
+	}
+
 	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
 	{
 		// Get properties for a provider, ordered by schemeName, then property name

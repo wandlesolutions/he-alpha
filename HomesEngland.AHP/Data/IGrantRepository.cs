@@ -4,6 +4,7 @@ public interface IGrantRepository
 {
 	Task<IEnumerable<Programme>> GetProgrammes();
 	Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId);
+	Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled();
 	Task<IEnumerable<Provider>> GetProviders();
 	Task<Programme?> GetProgramme(Guid programmeId);
 	Task<Provider?> GetProvider(Guid providerId);

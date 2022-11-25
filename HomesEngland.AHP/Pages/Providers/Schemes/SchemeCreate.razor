@@ -10,16 +10,23 @@
 <PageContentContainer>
     <PageStatusContainer PageStatus="pageState" EntityName="scheme">
         <MainContents>
+           
+            @if (Programmes != null && Programmes.Length > 0)
+            {
+                <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                    <FormInputText Id="schemeName" @bind-Value="CreateModel.SchemeName" Label="Scheme name"></FormInputText>
+                    <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes" NoItemsText="There are no programmes enabled to your to create new schemes in"></FormSelect>
+                    <FormInputMoney Id="totalSchemeAmount" @bind-Value="CreateModel.TotalAmount" Label="Total scheme amount"></FormInputMoney>
 
-            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
-                <FormInputText Id="schemeName" @bind-Value="CreateModel.SchemeName" Label="Scheme name"></FormInputText>
-                <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes"></FormSelect>
-                <FormInputMoney Id="totalSchemeAmount" @bind-Value="CreateModel.TotalAmount" Label="Total scheme amount"></FormInputMoney>
+                    <CustomValidation @ref="customValidation"></CustomValidation>
 
-                <CustomValidation @ref="customValidation"></CustomValidation>
-
-                <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
-            </FormLayout>
+                    <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
+                </FormLayout>
+            }
+            else
+            {
+                <Inset>There are no available programmes to create schemes in.</Inset>
+            }
             
         </MainContents>
 
@@ -27,58 +34,58 @@
 </PageContentContainer>
 
 
-@code {
+    @code {
     private SchemeCreateFormModel CreateModel = new();
     private bool disableSubmitButton = false;
     private EditContext? editContext;
 
     private CustomValidation? customValidation;
 
-    private SelectListItem[]? Programmes;
+    private SelectListItem[]? Programmes { get; set; }
 
-    private PageStatus pageState { get; set; } = PageStatus.Loading;
-
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        editContext = new(CreateModel);
-        editContext.EnableDataAnnotationsValidation(serviceProvider);
-
-        Provider = await grantRepo.GetProvider(ProviderId);
-        Programmes = (await grantRepo.GetProgrammes())
-        .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
-            .ToArray();
-
-        pageState = PageStatus.Visible;
-    }
+        private PageStatus pageState { get; set; } = PageStatus.Loading;
 
 
-    [CascadingParameter]
-    public MainLayout? MainLayout { get; set; }
 
-    private Provider? Provider { get; set; }
-
-    [Parameter]
-    public Guid ProviderId { get; set; }
-
-    
-
-    protected override void OnParametersSet()
-    {
-        MainLayout?.SetBreadcrumbs(
-                    BreadcrumbItem.ProviderBase()
-                    .AddProvider(Provider)
-                    .AddSchemes(Provider));
-    }
-
-    public async Task OnSubmit()
-    {
-        pageState = PageStatus.PerformingAction;
-        disableSubmitButton = true;
-        if (editContext != null && editContext.Validate())
+        protected override async Task OnInitializedAsync()
         {
-            Scheme scheme = new()
+            editContext = new(CreateModel);
+            editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+            Provider = await grantRepo.GetProvider(ProviderId);
+            Programmes = (await grantRepo.GetProgrammesWithProviderSchemeCreationEnabled())
+            .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
+                    .ToArray();
+
+            pageState = PageStatus.Visible;
+        }
+
+
+        [CascadingParameter]
+        public MainLayout? MainLayout { get; set; }
+
+        private Provider? Provider { get; set; }
+
+        [Parameter]
+        public Guid ProviderId { get; set; }
+
+
+
+        protected override void OnParametersSet()
+        {
+            MainLayout?.SetBreadcrumbs(
+                            BreadcrumbItem.ProviderBase()
+                            .AddProvider(Provider)
+                            .AddSchemes(Provider));
+        }
+
+        public async Task OnSubmit()
+        {
+            pageState = PageStatus.PerformingAction;
+            disableSubmitButton = true;
+            if (editContext != null && editContext.Validate())
+            {
+                    Scheme scheme = new()
                 {
                     SchemeName = CreateModel.SchemeName,
                     Complete = false,
@@ -88,23 +95,23 @@
                     TotalAmount = CreateModel.TotalAmount,
                 };
 
-            Scheme result = await grantRepo.CreateScheme(scheme);
+                    Scheme result = await grantRepo.CreateScheme(scheme);
 
-            if (result != null)
-            {
-                navManager.NavigateTo($"/providers/byid/{result.ProviderId}/schemes?createSuccessful=true");
+                    if (result != null)
+                    {
+                        navManager.NavigateTo($"/providers/byid/{result.ProviderId}/schemes?createSuccessful=true");
+                    }
+                    else
+                    {
+                        //customValidation?.DisplayErrors(result.ModelState);
+                        disableSubmitButton = false;
+                        pageState = PageStatus.Visible;
+                    }
             }
             else
             {
-                //customValidation?.DisplayErrors(result.ModelState);
-                disableSubmitButton = false;
-                pageState = PageStatus.Visible;
+                    disableSubmitButton = false;
+                    pageState = PageStatus.Visible;
             }
         }
-        else
-        {
-            disableSubmitButton = false;
-            pageState = PageStatus.Visible;
-        }
-    }
 }
