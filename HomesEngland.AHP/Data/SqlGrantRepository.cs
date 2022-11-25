@@ -39,6 +39,13 @@ public class SqlGrantRepository : IGrantRepository
 		return provider;
 	}
 
+	public async Task<Scheme> CreateScheme(Scheme scheme)
+	{
+		await _context.Schemes.AddAsync(scheme);
+		await _context.SaveChangesAsync();
+		return scheme;
+	}
+
 	public async Task DeleteProgrammeFeature(Guid programmeFeatureId)
 	{
 		var programmeFeature = await _context.ProgrammeFeatures
@@ -75,5 +82,14 @@ public class SqlGrantRepository : IGrantRepository
 	public async Task<IEnumerable<Provider>> GetProviders()
 	{
 		return await _context.Providers?.OrderBy(_ => _.ProviderName).ToListAsync();
+	}
+
+	public async Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid schemeId)
+	{
+		return await _context.Schemes
+			.Include(_ => _.Programme)
+			.Where(_ => _.ProviderId == schemeId)
+			.OrderBy(_ => _.SchemeName)
+			.ToListAsync();
 	}
 }

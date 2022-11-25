@@ -1,0 +1,24 @@
+﻿@using System.Globalization
+<span>
+    @DisplayOutput
+</span>
+@code {
+
+
+    [Parameter, EditorRequired]
+    public decimal? Amount { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Amount.HasValue)
+        {
+            DisplayOutput = Amount.Value.ToString("C", new CultureInfo("en-GB"));
+        }
+        else
+        {
+            DisplayOutput = null;
+        }
+    }
+
+    private string? DisplayOutput { get; set; }
+}

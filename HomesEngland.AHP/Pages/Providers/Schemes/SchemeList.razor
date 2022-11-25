@@ -1,0 +1,63 @@
+﻿@page "/providers/byid/{ProviderId:guid}/schemes"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Schemes for provider</PageTitle>
+
+@if(Provider != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Provider.ProviderName</Caption>
+}
+<PageHeadingActionLinkContainer Heading="Schemes">
+    <ActionLinks>
+        <ActionLink Href="@($"/providers/byid/{ProviderId}/schemes/create")">Create scheme</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Schemes != null && Schemes.Any())
+{
+    <GovTable Items="Schemes" Context="scheme">
+        <Header>
+            <GovTableHeader>Scheme name</GovTableHeader>
+            <GovTableHeader>Programme</GovTableHeader>
+            <GovTableHeader>Total amount</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableRowHeader>
+                @scheme.SchemeName
+                </GovTableRowHeader>
+                <GovTableData>@scheme.Programme.ProgrammeName</GovTableData>
+                <GovTableData><Currency Amount="@scheme.TotalAmount"></Currency></GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No schemes exist for this provider</Inset>
+}
+
+@code {
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    private IEnumerable<Scheme>? Schemes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Provider = await repo.GetProvider(ProviderId);
+        Schemes = await repo.GetSchemesForProvider(ProviderId);
+    }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+            BreadcrumbItem.ProviderBase()
+            .AddProvider(Provider));
+    }
+}

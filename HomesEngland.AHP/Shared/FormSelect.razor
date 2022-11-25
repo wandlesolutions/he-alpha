@@ -1,0 +1,77 @@
+﻿<div class="govuk-form-group">
+    <label class="govuk-label" for="@Id">
+        @Label
+    </label>
+
+    @if (Items != null && Items.Any())
+    {
+
+        <InputSelect name="@Id" id="@Id" @bind-Value="Value" class="govuk-select">
+            @if (AddEmptyItem)
+            {
+                <option></option>
+            }
+            @foreach (var item in Items)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
+        </InputSelect>
+
+    }
+    else
+    {
+        <Inset>@NoItemsText</Inset>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<SelectListItem> Items { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Id { get; set; }
+
+    private string _value;
+
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string? NoItemsText { get; set; } = "No items exist to choose from";
+
+    [Parameter]
+    public bool AddEmptyItem { get; set; } = true;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && !AddEmptyItem && _value == null)
+        {
+            SetFirstItemAsSelected();
+        }
+    }
+
+    private void SetFirstItemAsSelected()
+    {
+
+        var firstItem = Items?.FirstOrDefault();
+        if (firstItem != null)
+        {
+            Value = firstItem.Value;
+        }
+    }
+}

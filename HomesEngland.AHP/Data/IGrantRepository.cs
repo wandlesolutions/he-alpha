@@ -10,11 +10,13 @@ public interface IGrantRepository
 	Task<IEnumerable<Feature>> GetFeatures();
 
 	Task<IEnumerable<ProgrammeFeature>> GetProgrammeFeatures(Guid programmeId);
+	Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid schemeId);
 
 	Task<Feature> CreateFeature(Feature feature);
 	Task<Programme> CreateProgramme(Programme programme);
 	Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature);
 	Task<Provider> CreateProvider(Provider provider);
+	Task<Scheme> CreateScheme(Scheme scheme);
 
 	Task DeleteProgrammeFeature(Guid programmeFeatureId);
 }

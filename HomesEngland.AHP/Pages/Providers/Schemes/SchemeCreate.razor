@@ -1,0 +1,110 @@
+﻿@page "/providers/byid/{ProviderId:guid}/schemes/create"
+@using HomesEngland.AHP.Data;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
+<PageHeading>Create scheme</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="scheme">
+        <MainContents>
+
+            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                <FormInputText Id="schemeName" @bind-Value="CreateModel.SchemeName" Label="Scheme name"></FormInputText>
+                <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes"></FormSelect>
+                <FormInputMoney Id="totalSchemeAmount" @bind-Value="CreateModel.TotalAmount" Label="Total scheme amount"></FormInputMoney>
+
+                <CustomValidation @ref="customValidation"></CustomValidation>
+
+                <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
+            </FormLayout>
+            
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private SchemeCreateFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    private SelectListItem[]? Programmes;
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        Provider = await grantRepo.GetProvider(ProviderId);
+        Programmes = (await grantRepo.GetProgrammes())
+        .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
+            .ToArray();
+
+        pageState = PageStatus.Visible;
+    }
+
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                    BreadcrumbItem.ProviderBase()
+                    .AddProvider(Provider)
+                    .AddSchemes(Provider));
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+        if (editContext != null && editContext.Validate())
+        {
+            Scheme scheme = new()
+                {
+                    SchemeName = CreateModel.SchemeName,
+                    Complete = false,
+                    Completed = null,
+                    ProgrammeId = new Guid(CreateModel.ProgrammeId),
+                    ProviderId = Provider.ProviderId,
+                    TotalAmount = CreateModel.TotalAmount,
+                };
+
+            Scheme result = await grantRepo.CreateScheme(scheme);
+
+            if (result != null)
+            {
+                navManager.NavigateTo($"/providers/byid/{result.ProviderId}/schemes?createSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+}

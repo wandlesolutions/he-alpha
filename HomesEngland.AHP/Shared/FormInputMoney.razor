@@ -1,0 +1,63 @@
+﻿<FormGroup>
+    <label class="govuk-label" for="@Id">
+        @Label
+    </label>
+    <div class="govuk-input__wrapper">
+        <div class="govuk-input__prefix" aria-hidden="true">£</div>
+
+        <InputText DisplayName="@DisplayName" @bind-Value="ValueText" class="govuk-input govuk-input--width-5" id="@Id" name="@Id" type="text" spellcheck="false"></InputText>
+    </div>
+</FormGroup>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Id { get; set; }
+
+    private decimal? _value;
+    private string _valueText;
+
+    public string ValueText
+    {
+        get
+        {
+            return _valueText;
+        }
+        set
+        {
+            if (value != _valueText)
+            {
+                _valueText = value;
+                if (decimal.TryParse(value, out decimal output))
+                {
+                    Value = output;
+                }
+                else
+                {
+                    Value = null;
+                    _value = null;
+                }
+            }
+        }
+    }
+
+    [Parameter]
+    public decimal? Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+    
+    [Parameter]
+    public EventCallback<decimal?> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string DisplayName { get; set; }
+}
