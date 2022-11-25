@@ -1,0 +1,119 @@
+﻿@page "/providers/byid/{ProviderId:guid}/properties/byid/{PropertyId:guid}"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Property details</PageTitle>
+
+@if (Property != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Property.PropertyName</Caption>
+}
+<PageHeadingActionLinkContainer Heading="Property Details">
+    <ActionLinks>
+        <ActionLink Href="@($"/providers/byid/{ProviderId}/properties/create")">Claim expense</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Property != null)
+{
+    <DataList>
+        <DataRow>
+            <DataTerm>Address 1:</DataTerm>
+            <DataDefinition>@Property.Address1</DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Address 2:</DataTerm>
+            <DataDefinition>@Property.Address2</DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Postcode:</DataTerm>
+            <DataDefinition>@Property.Postcode</DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Local Authority:</DataTerm>
+            <DataDefinition>@Property.LocalAuthority</DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Grant amount:</DataTerm>
+            <DataDefinition>
+                @if (Property.GrantAmount.HasValue)
+                {
+                    <Currency Amount="@Property.GrantAmount"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Expenses amount:</DataTerm>
+            <DataDefinition>
+
+                @if (Property.ExpensesAmount.HasValue)
+                {
+                    <Currency Amount="@Property.ExpensesAmount"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Total funding:</DataTerm>
+            <DataDefinition>
+
+                @if (Property.TotalAmount.HasValue)
+                {
+                    <Currency Amount="@Property.TotalAmount"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+    </DataList>
+}
+else
+{
+    <Inset>Property does not exist for this provider</Inset>
+}
+
+@code {
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    [Parameter]
+    public Guid PropertyId { get; set; }
+
+    private Property? Property { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Provider = await repo.GetProvider(ProviderId);
+        Property = await repo.GetPropertyForProvider(PropertyId, ProviderId);
+
+    }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                   BreadcrumbItem.ProviderBase()
+                   .AddProvider(Provider)
+                   .AddProperties(Provider));
+    }
+}

@@ -1,0 +1,65 @@
+﻿@page "/providers/byid/{ProviderId:guid}/properties"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>Properties for provider</PageTitle>
+
+@if (Provider != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Provider.ProviderName</Caption>
+}
+<PageHeadingActionLinkContainer Heading="Properties">
+    <ActionLinks>
+        <ActionLink Href="@($"/providers/byid/{ProviderId}/properties/create")">Add property to scheme</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Properties != null && Properties.Any())
+{
+    <GovTable Items="Properties" Context="property">
+        <Header>
+            <GovTableHeader>Property name</GovTableHeader>
+            <GovTableHeader>Scheme</GovTableHeader>
+            <GovTableHeader>Programme</GovTableHeader>
+            <GovTableHeader>Grant amount</GovTableHeader>
+        </Header>
+        <RowTemplate>
+            <GovTableRowHeader>
+                <GovLink Href="@($"/providers/byid/{ProviderId}/properties/byid/{property.PropertyId}")">@property.PropertyName</GovLink>
+            </GovTableRowHeader>
+            <GovTableData>@property.Scheme.SchemeName</GovTableData>
+            <GovTableData>@property.Scheme.Programme.ProgrammeName</GovTableData>
+            <GovTableData><Currency Amount="@property.GrantAmount"></Currency></GovTableData>
+        </RowTemplate>
+    </GovTable>
+}
+else
+{
+    <Inset>No properties exist for this provider</Inset>
+}
+
+@code {
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    private IEnumerable<Property>? Properties { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Provider = await repo.GetProvider(ProviderId);
+        Properties = await repo.GetPropertiesForProvider(ProviderId);
+    }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+            BreadcrumbItem.ProviderBase()
+            .AddProvider(Provider));
+    }
+}

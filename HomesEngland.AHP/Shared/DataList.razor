@@ -1,4 +1,4 @@
-﻿<dl class="govuk-summary-list govuk-summary-list--no-border">
+﻿<dl class="@Css">
     @ChildContent
 </dl>
 
@@ -8,4 +8,20 @@
 
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public bool? Border { get; set; } = true;
+
+    public string Css
+    {
+        get
+        {
+            if (Border.HasValue && Border.Value)
+            {
+                return "govuk-summary-list";
+            }
+
+            return "govuk-summary-list govuk-summary-list--no-border";
+        }
+    }
 }

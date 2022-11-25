@@ -1,6 +1,7 @@
 ﻿@page "/admin/bootstrap"
 @using HomesEngland.AHP.Data;
 @inject IGrantRepository grantRepo
+@inject AhpContext ctx
 
 <PageTitle>Setup reference data in P.A.N.O.S</PageTitle>
 
@@ -21,6 +22,15 @@
 
     private async Task PopulateReferenceData()
     {
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //	var services = scope.ServiceProvider;
+
+        //	var context = services.GetRequiredService<AhpContext>();
+        ctx.Database.EnsureCreated();
+        //DbInitializer.Initialize(ctx);
+        //}
+
         var features = await grantRepo.GetFeatures();
 
         await EnsureFeature(features, new Feature()

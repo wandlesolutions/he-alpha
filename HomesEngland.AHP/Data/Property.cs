@@ -7,7 +7,7 @@ namespace HomesEngland.AHP.Data;
 public class Property
 {
 	[Required, Key]
-	public Guid ProperyId { get; set; }
+	public Guid PropertyId { get; set; }
 
 	[Required, StringLength(64)]
 	public string PropertyName { get; set; }
@@ -33,5 +33,8 @@ public class Property
 	public decimal? GrantAmount { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
-	public decimal? ExpensesTotal { get; set; }
+	public decimal? ExpensesAmount { get; set; }
+
+	[Column(TypeName = ColumnTypes.Money)]
+	public decimal? TotalAmount { get; set; }
 }

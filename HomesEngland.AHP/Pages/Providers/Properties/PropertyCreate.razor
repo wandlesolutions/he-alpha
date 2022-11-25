@@ -1,0 +1,153 @@
+﻿@page "/providers/byid/{ProviderId:guid}/properties/create"
+@using HomesEngland.AHP.Data;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
+<PageHeading>Create property</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="property">
+        <MainContents>
+
+            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                <FormInputText Id="propertyName" @bind-Value="CreateModel.PropertyName" Label="Property name" Width="TextboxWidth.TwentyCharacters"></FormInputText>
+
+                <FormSelect Id="programmeId" Label="Programme" Items="Programmes" ValueChanged="OnProgrammeSelected"></FormSelect>
+                <FormSelect Id="schemeId" @bind-Value="CreateModel.SchemeId" Label="Scheme" Items="Schemes" NoItemsText="Choose a programme before selecting a scheme"></FormSelect>
+
+                <FormInputText Id="address1" @bind-Value="CreateModel.Address1" Label="Address line 1" Width="TextboxWidth.OneHalf"></FormInputText>
+                <FormInputText Id="address2" @bind-Value="CreateModel.Address2" Label="Address line 2" Width="TextboxWidth.OneHalf"></FormInputText>
+                <FormInputText Id="postcode" @bind-Value="CreateModel.Postcode" Label="Postcode" Width="TextboxWidth.TenCharacters"></FormInputText>
+                <FormInputText Id="localAuthority" @bind-Value="CreateModel.LocalAuthority" Label="Local Authority" Width="TextboxWidth.TwentyCharacters"></FormInputText>
+
+                <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
+                <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Expenses amount"></FormInputMoney>
+
+                <CustomValidation @ref="customValidation"></CustomValidation>
+
+                <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
+            </FormLayout>
+
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private PropertyCreateFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    private SelectListItem[]? Programmes;
+    private SelectListItem[]? Schemes;
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        Provider = await grantRepo.GetProvider(ProviderId);
+        Programmes = (await grantRepo.GetProgrammesAssociatedToSchemesForProvider(ProviderId))
+        .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
+            .ToArray();
+
+        pageState = PageStatus.Visible;
+    }
+
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                    BreadcrumbItem.ProviderBase()
+                    .AddProvider(Provider)
+                    .AddProperties(Provider));
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+        if (editContext != null && editContext.Validate())
+        {
+            decimal totalAmount = 0;
+            if (CreateModel.ExpensesAmount.HasValue)
+            {
+                totalAmount += CreateModel.ExpensesAmount.Value;
+            }
+
+            if (CreateModel.GrantAmount.HasValue)
+            {
+                totalAmount += CreateModel.GrantAmount.Value;
+            }
+
+            Property property = new()
+                {
+                    SchemeId = new Guid(CreateModel.SchemeId),
+                    PropertyName = CreateModel.PropertyName,
+                    Address1 = CreateModel.Address1,
+                    Address2 = CreateModel.Address2,
+                    Postcode = CreateModel.Postcode,
+                    LocalAuthority = CreateModel.LocalAuthority,
+                    ExpensesAmount = CreateModel.ExpensesAmount,
+                    GrantAmount = CreateModel.GrantAmount,
+                    TotalAmount = totalAmount,
+                };
+
+            Property result = await grantRepo.CreateProperty(property);
+
+            if (result != null)
+            {
+                navManager.NavigateTo($"/providers/byid/{ProviderId}/properties/byid/{result.PropertyId}?createSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+
+    public async Task OnProgrammeSelected(string programmeId)
+    {
+        if (string.IsNullOrWhiteSpace(programmeId))
+        {
+            Schemes = new SelectListItem[0];
+            CreateModel.SchemeId = null;
+        }
+        else
+        {
+            Schemes = (await grantRepo.GetSchemesForProgrammeForProvider(new Guid(programmeId), ProviderId))
+                    .Select(s => new SelectListItem(s.SchemeName, s.SchemeId.ToString()))
+                    .ToArray();
+            CreateModel.SchemeId = null;
+        }
+
+        CreateModel.ProgrammeId = programmeId;
+    }
+}
+

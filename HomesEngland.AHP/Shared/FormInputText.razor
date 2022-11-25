@@ -2,7 +2,7 @@
     <label class="govuk-label" for="@Id">
         @Label
     </label>
-    <InputText DisplayName="@DisplayName" @bind-Value="Value" class="govuk-input" id="@Id" name="@Id" type="text"></InputText>
+    <InputText DisplayName="@DisplayName" @bind-Value="Value" class="@Css" id="@Id" name="@Id" type="text"></InputText>
 </FormGroup>
 
 @code {
@@ -31,4 +31,37 @@
 
     [Parameter]
     public string DisplayName { get; set; }
+
+    [Parameter]
+    public TextboxWidth? Width { get; set; }
+
+    public string Css
+    {
+
+        get
+        {
+            if (Width.HasValue)
+            {
+                string width = Width.Value switch
+                {
+                    TextboxWidth.TwentyCharacters => "govuk-input--width-20",
+                    TextboxWidth.TenCharacters => "govuk-input--width-10",
+                    TextboxWidth.FiveCharacters => "govuk-input--width-5",
+                    TextboxWidth.FourCharacters => "govuk-input--width-4",
+                    TextboxWidth.ThreeCharacters => "govuk-input--width-3",
+                    TextboxWidth.TwoCharacters => "govuk-input--width-2",
+                    TextboxWidth.FullWidth => "govuk-!-width-full",
+                    TextboxWidth.ThreeQuarters => "govuk-!-width-three-quarters",
+                    TextboxWidth.TwoThirds => "govuk-!-width-two-thirds",
+                    TextboxWidth.OneHalf => "govuk-!-width-one-half",
+                    TextboxWidth.OneThird => "govuk-!-width-one-third",
+                    TextboxWidth.OneQuarter => "govuk-!-width-one-quarter",
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+
+                return $"govuk-input {width}";
+            }
+            return "govuk-input";
+        }
+    }
 }

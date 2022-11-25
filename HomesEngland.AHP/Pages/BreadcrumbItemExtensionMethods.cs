@@ -34,4 +34,16 @@ public static class BreadcrumbItemExtensionMethods
 		return breadcrumbItems;
 	}
 
+	public static List<BreadcrumbItem> AddProperties(this List<BreadcrumbItem> breadcrumbItems, Provider provider)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/properties", "Properties"));
+		return breadcrumbItems;
+	}
+
+	public static List<BreadcrumbItem> AddProperty(this List<BreadcrumbItem> breadcrumbItems, Provider provider, Property property)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/properties/byid/{property.PropertyId}", property.PropertyName));
+		return breadcrumbItems;
+	}
+
 }
