@@ -18,24 +18,17 @@
 {
     <DataList>
         <DataRow>
-            <DataTerm>Address 1:</DataTerm>
-            <DataDefinition>@Property.Address1</DataDefinition>
+            <DataTerm>Address</DataTerm>
+            <DataDefinition>
+                @Property.Address1
+                <br />
+                @Property.Address2
+                <br />
+                @Property.Postcode
+                <br />
+                @Property.LocalAuthority</DataDefinition>
         </DataRow>
 
-        <DataRow>
-            <DataTerm>Address 2:</DataTerm>
-            <DataDefinition>@Property.Address2</DataDefinition>
-        </DataRow>
-
-        <DataRow>
-            <DataTerm>Postcode:</DataTerm>
-            <DataDefinition>@Property.Postcode</DataDefinition>
-        </DataRow>
-
-        <DataRow>
-            <DataTerm>Local Authority:</DataTerm>
-            <DataDefinition>@Property.LocalAuthority</DataDefinition>
-        </DataRow>
 
         <DataRow>
             <DataTerm>Grant amount:</DataTerm>
@@ -81,6 +74,12 @@
             </DataDefinition>
         </DataRow>
     </DataList>
+
+    <Heading Size="HeadingSize.Large">Expenses</Heading>
+    <Inset>No expenses have been claimed against this property</Inset>
+
+    <Heading Size="HeadingSize.Large">Grant milestones</Heading>
+    <Inset>No grant milestones have been created against this property</Inset>
 }
 else
 {

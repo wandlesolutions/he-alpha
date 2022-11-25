@@ -1,0 +1,37 @@
+﻿@if(Size == HeadingSize.ExtraLarge)
+{
+    <h1 class="govuk-heading-xl">@ChildContent</h1>
+}
+else if(Size == HeadingSize.Large)
+{
+    <h2 class="govuk-heading-l">@ChildContent</h2>
+}
+else if (Size == HeadingSize.Medium)
+{
+    <h3 class="govuk-heading-m">@ChildContent</h3>
+}else if(Size == HeadingSize.Small)
+{
+    <h3 class="govuk-heading-s">@ChildContent</h3>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public HeadingSize Size { get; set; }   
+
+    public string Css { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        Css = Size switch
+        {
+            HeadingSize.Small => "govuk-heading-s",
+            HeadingSize.Medium => "govuk-heading-m",
+            HeadingSize.Large => "govuk-heading-l",
+            HeadingSize.ExtraLarge => "govuk-heading-xl",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+}
