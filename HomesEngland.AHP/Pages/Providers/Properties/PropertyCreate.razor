@@ -11,8 +11,13 @@
     <PageStatusContainer PageStatus="pageState" EntityName="property">
         <MainContents>
 
-            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
-                <FormInputText Id="propertyName" @bind-Value="CreateModel.PropertyName" Label="Property name" Width="TextboxWidth.TwentyCharacters"></FormInputText>
+            @if (Programmes != null && Programmes.Any())
+            {
+
+
+
+                <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                    <FormInputText Id="propertyName" @bind-Value="CreateModel.PropertyName" Label="Property name" Width="TextboxWidth.TwentyCharacters"></FormInputText>
 
                 <FormSelect Id="programmeId" Label="Programme" Items="Programmes" ValueChanged="OnProgrammeSelected"></FormSelect>
                 <FormSelect Id="schemeId" @bind-Value="CreateModel.SchemeId" Label="Scheme" Items="Schemes" NoItemsText="Choose a programme before selecting a scheme"></FormSelect>
@@ -28,7 +33,12 @@
                 <CustomValidation @ref="customValidation"></CustomValidation>
 
                 <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
-            </FormLayout>
+                </FormLayout>
+            }
+            else
+            {
+                <Inset>There are no available schemes to create properties against. <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/create")">Create a new scheme</GovLink> before creating properties.</Inset>
+            }
 
         </MainContents>
 
@@ -59,6 +69,11 @@
         Programmes = (await grantRepo.GetProgrammesAssociatedToSchemesForProvider(ProviderId))
         .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
             .ToArray();
+
+        if(Programmes.Count() == 1)
+        {
+            CreateModel.ProgrammeId = Programmes.First().Value;
+        }
 
         pageState = PageStatus.Visible;
     }
