@@ -1,4 +1,5 @@
-﻿@inject NavigationManager navManager
+﻿@using System.Text.RegularExpressions;
+@inject NavigationManager navManager
 @implements IDisposable
 
 <header class="govuk-header " role="banner" data-module="govuk-header">
@@ -34,7 +35,7 @@
             <nav aria-label="Menu" class="govuk-header__navigation ">
                 <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide menu" hidden>Menu</button>
 
-               <NavigationItems Items="navigationItems"></NavigationItems>
+                <NavigationItems Items="navigationItems"></NavigationItems>
 
 
             </nav>
@@ -65,8 +66,8 @@
     {
         navManager.LocationChanged -= LocationChanged;
     }
-    
-     
+
+
 
     //protected override void OnAfterRender(bool firstRender)
     //{
@@ -85,41 +86,75 @@
 
     private void UpdateNavigation()
     {
-        (NavigationArea? pageNavigationArea, string? baseUrl) = GetNavigationSection();
-        if (_currentNavigation != pageNavigationArea || _currentNavigationArea != baseUrl)
+        (NavigationArea? pageNavigationArea, string? selectedItemUrlPath, string? providerId) = GetNavigationSection();
+        if (_currentNavigation != pageNavigationArea || _currentNavigationArea != selectedItemUrlPath)
         {
             _currentNavigation = pageNavigationArea;
-            _currentNavigationArea = baseUrl;
+            _currentNavigationArea = selectedItemUrlPath;
 
             if (pageNavigationArea == NavigationArea.Home)
             {
                 //navigationItems.Clear();
-                navigationItems =GenerateHomeItems(baseUrl);
-               StateHasChanged();
+                navigationItems = GenerateHomeItems(selectedItemUrlPath);
+                StateHasChanged();
+            }
+            else if (pageNavigationArea == NavigationArea.Provider)
+            {
+                navigationItems = GenerateProviderItems(selectedItemUrlPath, providerId);
+                StateHasChanged();
             }
         }
     }
 
-    public (NavigationArea?, string? baseUrl) GetNavigationSection()
+    public (NavigationArea?, string? selectedItemUrlPath, string? providerId) GetNavigationSection()
     {
         Uri uri = new Uri(navManager.Uri);
 
         if (uri.AbsolutePath == "/")
         {
-            return (NavigationArea.Home, "/");
+            return (NavigationArea.Home, "/", null);
         }
 
         if (uri.AbsolutePath == "/providers")
         {
-            return (NavigationArea.Home, "/providers");
+            return (NavigationArea.Home, "/providers", null);
         }
 
-        if (uri.AbsolutePath == "/admin")
+        if (uri.AbsolutePath.StartsWith("/admin"))
         {
-            return (NavigationArea.Home, "/admin");
+            return (NavigationArea.Home, "/admin", null);
         }
 
-        return (null, null);
+        string? providerId = null;
+
+        var providerMatch = Regex.Matches(uri.AbsolutePath, "^\\/providers\\/byid\\/(([A-Z]|[a-z]|[0-9]|-)+)\\/");
+        if (providerMatch.Count > 0)
+        {
+            string fullPath = providerMatch[0].Value;
+            providerId = fullPath.Substring(16, fullPath.Length - 17);
+        }
+
+        if (Regex.Match(uri.AbsolutePath, "^\\/providers\\/byid\\/([A-Z]|[a-z]|[0-9]|-)+\\/schemes").Success)
+        {
+            return (NavigationArea.Provider, "/providers/schemes", providerId);
+        }
+
+        if (Regex.Match(uri.AbsolutePath, "^\\/providers\\/byid\\/([A-Z]|[a-z]|[0-9]|-)+\\/properties").Success)
+        {
+            return (NavigationArea.Provider, "/providers/properties", providerId);
+        }
+
+        if (Regex.Match(uri.AbsolutePath, "^\\/providers\\/byid\\/([A-Z]|[a-z]|[0-9]|-)+\\/milestones").Success)
+        {
+            return (NavigationArea.Provider, "/providers/milestones", providerId);
+        }
+
+        if (Regex.Match(uri.AbsolutePath, "^\\/providers\\/byid\\/([A-Z]|[a-z]|[0-9]|-)+\\/expenses").Success)
+        {
+            return (NavigationArea.Provider, "/providers/expenses", providerId);
+        }
+
+        return (null, null, null);
     }
 
     private List<NavigationItem> GenerateHomeItems(string selectedItemUrl)
@@ -145,7 +180,44 @@
                                 Selected = selectedItemUrl == "/admin"
                             }
                         };
+        return items;
+    }
 
+    private List<NavigationItem> GenerateProviderItems(string selectedItemUrl, string providerId)
+    {
+        List<NavigationItem> items = new()
+        {
+            new NavigationItem()
+            {
+                Text = "Provider Home",
+                Url = $"/providers/byid/{providerId}",
+                Selected = selectedItemUrl == "/providers"
+            },
+            new NavigationItem()
+            {
+                Text = "Schemes",
+                Url = $"/providers/byid/{providerId}/schemes",
+                Selected = selectedItemUrl == "/providers/schemes"
+            },
+            new NavigationItem()
+            {
+                Text = "Properties",
+                Url = $"/providers/byid/{providerId}/properties",
+                Selected = selectedItemUrl == "/providers/properties"
+            },
+            new NavigationItem()
+            {
+                Text = "Milestones",
+                Url = $"/providers/byid/{providerId}/milestones",
+                Selected = selectedItemUrl == "/providers/milestones"
+            },
+            new NavigationItem()
+            {
+                Text = "Expenses",
+                Url = $"/providers/byid/{providerId}/expenses",
+                Selected = selectedItemUrl == "/providers/expenses"
+            },
+        };
 
 
         return items;

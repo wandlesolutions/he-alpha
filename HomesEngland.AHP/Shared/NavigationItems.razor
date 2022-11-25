@@ -1,25 +1,26 @@
 ﻿@if (Items != null && Items.Count > 0)
 {
-                        <ul id="navigation" class="govuk-header__navigation-list">
+    <ul id="navigation" class="govuk-header__navigation-list">
         @foreach (var item in Items)
         {
             string cssClass = item.Selected ? "govuk-header__navigation-item govuk-header__navigation-item--active" : "govuk-header__navigation-item";
 
-                                    <li class="@cssClass">
-                                        <a class="govuk-header__link" href="@item.Url">
+            <li class="@cssClass">
+                <a class="govuk-header__link" href="@item.Url">
                     @item.Text
-                                        </a>
-                                    </li>
+                </a>
+            </li>
         }
-
-                        </ul>
+    </ul>
 }
 
 @code {
     private List<NavigationItem>? _items = null;
 
-    [Parameter,EditorRequired]
-    public List<NavigationItem>? Items { get
+    [Parameter, EditorRequired]
+    public List<NavigationItem>? Items
+    {
+        get
         {
             return _items;
         }
