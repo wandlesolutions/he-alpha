@@ -1,0 +1,31 @@
+﻿<div class="govuk-radios__item">
+    <InputRadio class="govuk-radios__input" id="@Id" aria-describedby="sign-in-item-hint" Value="@Value" Name="@Name"></InputRadio>
+    <label class="govuk-label govuk-radios__label" for="@Id">
+        @Label
+    </label>
+    @if (!string.IsNullOrWhiteSpace(Hint))
+    {
+      <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
+            @Hint
+      </div>
+    }
+  
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? Hint { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? Value { get; set; }
+    
+    
+    [Parameter, EditorRequired]
+    public string? Name { get; set; }
+    
+    [Parameter, EditorRequired]
+    public string? Id { get; set; }
+}

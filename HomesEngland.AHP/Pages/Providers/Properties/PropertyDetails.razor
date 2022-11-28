@@ -93,7 +93,7 @@
                 </GovTableRowHeader>
                 <GovTableData><Currency Amount="@milestone.GrantAmount"></Currency></GovTableData>
                 <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
-                <GovTableData><GovLink Href="@($"/providers/byid/{ProviderId}/properties/byid/{PropertyId}/grantMilestones/byid/{milestone.GrantMilestoneId}")">Update</GovLink></GovTableData>
+                <GovTableData><GovLink Href="@($"/providers/byid/{ProviderId}/properties/byid/{PropertyId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink></GovTableData>
             </RowTemplate>
         </GovTable>
     }

@@ -1,0 +1,184 @@
+﻿@page "/providers/byid/{ProviderId:guid}/properties/byid/{PropertyId:guid}/grantMilestones/byid/{GrantMilestoneId:guid}/update"
+@using HomesEngland.AHP.Data;
+@using HomesEngland.AHP.Operations.Properties;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+@inject MilestoneCreationService milestoneCreationService
+
+@if (GrantMilestone != null && Property != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@GrantMilestone.MilestoneType.MilestoneTypeName for @Property.PropertyName</Caption>
+}
+<PageHeading>Update grant milestone</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="grant milestone">
+        <MainContents>
+
+
+
+
+            @if (GrantMilestone != null)
+            {
+                @if (GrantMilestone.Completed)
+                {
+                    <Inset>Grant milestone has been completed and can not be updated.</Inset>
+                }
+                else
+                {
+                    if (CompletionScreen == null)
+                    {
+                        <GovRadioDecision @bind-Value="CompletionDecision" Name="Completion" Title="How would you like to update this milestone?">
+                            <GovRadioDecisionItem Id="update" Value="update" Label="Update forecast date" Name="Completion" Hint="Change when you think you will meet this milestone or indicate you won't meet it on the expected date."></GovRadioDecisionItem>
+                            <GovRadioDecisionItem Id="complete" Value="complete" Label="Complete this milestone" Name="Completion" Hint="Mark the milestone as complete and receive any associated payment."></GovRadioDecisionItem>
+                        </GovRadioDecision>
+
+                        <GovButton OnClick="OnDecision">Continue</GovButton>
+                    }
+
+                    @if (CompletionScreen == "update")
+                    {
+                        <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+
+                            <FormInputDate Id="targetDate" @bind-Value="CreateModel.TargetDate" Label="Target date"></FormInputDate>
+
+                            <CustomValidation @ref="customValidation"></CustomValidation>
+
+                            <SubmitButton Disabled="disableSubmitButton" Label="Update milestone" />
+                        </FormLayout>
+
+                    }
+                }
+
+
+            }
+            else
+            {
+                <Inset>Grant milestone does not exist</Inset>
+            }
+
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private GrantMilestoneUpdateFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    private GrantMilestone? GrantMilestone { get; set; }
+    private Property? Property { get; set; }
+
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+    private string? CompletionDecision { get; set; }
+
+    private string? CompletionScreen { get; set; }
+
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    private Provider? Provider { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    [Parameter]
+    public Guid PropertyId { get; set; }
+
+    [Parameter]
+    public Guid GrantMilestoneId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        Provider = await grantRepo.GetProvider(ProviderId);
+        Property = await grantRepo.GetProperty(PropertyId);
+        GrantMilestone = await grantRepo.GetGrantMilestone(GrantMilestoneId);
+
+        CreateModel.TargetDate = GrantMilestone.TargetDate;
+
+        pageState = PageStatus.Visible;
+    }
+
+
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                    BreadcrumbItem.ProviderBase()
+                    .AddProvider(Provider)
+                    .AddProperties(Provider)
+                    .AddProperty(Provider, Property)
+                    );
+    }
+
+    public async Task OnSubmit()
+    {
+        //pageState = PageStatus.PerformingAction;
+        //disableSubmitButton = true;
+        //if (editContext != null && editContext.Validate())
+        //{
+        //    decimal totalAmount = 0;
+        //    if (CreateModel.ExpensesAmount.HasValue)
+        //    {
+        //        totalAmount += CreateModel.ExpensesAmount.Value;
+        //    }
+
+        //    if (CreateModel.GrantAmount.HasValue)
+        //    {
+        //        totalAmount += CreateModel.GrantAmount.Value;
+        //    }
+
+        //    Property property = new()
+        //        {
+        //            SchemeId = new Guid(CreateModel.SchemeId),
+        //            PropertyName = CreateModel.PropertyName,
+        //            Address1 = CreateModel.Address1,
+        //            Address2 = CreateModel.Address2,
+        //            Postcode = CreateModel.Postcode,
+        //            LocalAuthority = CreateModel.LocalAuthority,
+        //            ExpensesAmount = CreateModel.ExpensesAmount,
+        //            GrantAmount = CreateModel.GrantAmount,
+        //            TotalAmount = totalAmount,
+        //        };
+
+        //    Property result = await grantRepo.CreateProperty(property);
+
+        //    await milestoneCreationService.CreateMilestoneAfterPropertyIsCreated(result.PropertyId);
+
+        //    if (result != null)
+        //    {
+        //        navManager.NavigateTo($"/providers/byid/{ProviderId}/properties/byid/{result.PropertyId}?createSuccessful=true");
+        //    }
+        //    else
+        //    {
+        //        //customValidation?.DisplayErrors(result.ModelState);
+        //        disableSubmitButton = false;
+        //        pageState = PageStatus.Visible;
+        //    }
+        //}
+        //else
+        //{
+        //    disableSubmitButton = false;
+        //    pageState = PageStatus.Visible;
+        //}
+    }
+
+    public void OnDecision()
+    {
+        CompletionScreen = CompletionDecision;
+    }
+
+}
+

@@ -1,0 +1,74 @@
+﻿<div class="govuk-form-group">
+    <fieldset class="govuk-fieldset" aria-describedby="sign-in-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h1 class="govuk-fieldset__heading">
+                @Title
+            </h1>
+        </legend>
+        @if (!string.IsNullOrWhiteSpace(TitleHint))
+        {
+            <div id="sign-in-hint" class="govuk-hint">
+                @TitleHint
+            </div>
+        }
+
+        <InputRadioGroup @bind-Value="Value" Name="@Name" >
+
+
+
+            <div class="govuk-radios" data-module="govuk-radios">
+                @ChildContent
+               @* <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="sign-in" name="sign-in" type="radio" value="government-gateway" aria-describedby="sign-in-item-hint">
+                    <label class="govuk-label govuk-radios__label" for="sign-in">
+                        Sign in with Government Gateway
+                    </label>
+                    <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
+                        You’ll have a user ID if you’ve registered for Self Assessment or filed a tax return online before.
+                    </div>
+                </div>
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="sign-in-2" name="sign-in" type="radio" value="govuk-verify" aria-describedby="sign-in-2-item-hint">
+                    <label class="govuk-label govuk-radios__label" for="sign-in-2">
+                        Sign in with GOV.UK Verify
+                    </label>
+                    <div id="sign-in-2-item-hint" class="govuk-hint govuk-radios__hint">
+                        You’ll have an account if you’ve already proved your identity with either Barclays, CitizenSafe, Digidentity, Experian, Post Office, Royal Mail or SecureIdentity.
+                    </div>
+                </div>*@
+            </div>
+        </InputRadioGroup>
+    </fieldset>
+</div>
+
+@code {
+    private string _value;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string? TitleHint { get; set; }
+
+
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Name { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

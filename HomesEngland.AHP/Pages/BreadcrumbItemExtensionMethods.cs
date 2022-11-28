@@ -52,4 +52,10 @@ public static class BreadcrumbItemExtensionMethods
 		return breadcrumbItems;
 	}
 
+	public static List<BreadcrumbItem> AddGrantMilestones(this List<BreadcrumbItem> breadcrumbItems, Provider provider, Property property)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/properties/byid/{property.PropertyId}/grantMilestones", property.PropertyName));
+		return breadcrumbItems;
+	}
+
 }

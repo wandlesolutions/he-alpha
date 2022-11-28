@@ -99,6 +99,15 @@ public class SqlGrantRepository : IGrantRepository
 			.ToListAsync();
 	}
 
+	public async Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId)
+	{
+		return await _context.GrantMilestones
+			.Include(_ => _.FinancialYear)
+			.Include(_ => _.MilestoneType)
+			.Include(_ => _.Property)
+			.SingleOrDefaultAsync(_ => _.GrantMilestoneId == grantMilestoneId);
+	}
+
 	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId)
 	{
 		return await _context.GrantMilestones
