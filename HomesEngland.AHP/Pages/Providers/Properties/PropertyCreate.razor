@@ -1,8 +1,10 @@
 ﻿@page "/providers/byid/{ProviderId:guid}/properties/create"
 @using HomesEngland.AHP.Data;
+@using HomesEngland.AHP.Operations.Properties;
 @inject IServiceProvider serviceProvider
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
+@inject MilestoneCreationService milestoneCreationService
 
 <PageHeading>Create property</PageHeading>
 
@@ -128,6 +130,8 @@
                 };
 
             Property result = await grantRepo.CreateProperty(property);
+
+            await milestoneCreationService.CreateMilestoneAfterPropertyIsCreated(result.PropertyId);
 
             if (result != null)
             {

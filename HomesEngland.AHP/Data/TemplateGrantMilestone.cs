@@ -19,9 +19,8 @@ public class GrantMilestoneTemplate
 
 	public Programme Programme { get; set; }
 
-	[Required]
 	[Column(TypeName = ColumnTypes.Percentage)]
-	public decimal Percentage { get; set; }
+	public decimal? Percentage { get; set; }
 
 	[Required]
 	public int MilestoneOrder { get; set; }

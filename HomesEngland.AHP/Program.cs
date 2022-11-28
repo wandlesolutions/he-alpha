@@ -1,4 +1,5 @@
 using HomesEngland.AHP.Data;
+using HomesEngland.AHP.Operations.Properties;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,7 @@ builder.Services.AddDbContext<AhpContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddScoped<IGrantRepository, SqlGrantRepository>();
+builder.Services.AddScoped<MilestoneCreationService>();
 
 var app = builder.Build();
 

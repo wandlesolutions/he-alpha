@@ -2,7 +2,7 @@
 @using HomesEngland.AHP.Data;
 @inject IGrantRepository repo
 
-<PageTitle>Property details</PageTitle>
+<PageTitle>@PageTitle</PageTitle>
 
 @if (Property != null)
 {
@@ -75,11 +75,34 @@
         </DataRow>
     </DataList>
 
-    <Heading Size="HeadingSize.Large">Expenses</Heading>
-    <Inset>No expenses have been claimed against this property</Inset>
+    
 
-    <Heading Size="HeadingSize.Large">Grant milestones</Heading>
-    <Inset>No grant milestones have been created against this property</Inset>
+    <Heading Size="HeadingSize.Medium">Grant milestones</Heading>
+    if(GrantMilestones != null && GrantMilestones.Any())
+    {
+        <GovTable Items="GrantMilestones" Context="milestone">
+            <Header>
+                <GovTableHeader>Milestone type</GovTableHeader>
+                <GovTableHeader>Funding</GovTableHeader>
+                <GovTableHeader>Date</GovTableHeader>
+                <GovTableHeader>Actions</GovTableHeader>
+            </Header>
+            <RowTemplate>
+                <GovTableRowHeader>
+                    @milestone.MilestoneType.MilestoneTypeName
+                </GovTableRowHeader>
+                <GovTableData><Currency Amount="@milestone.GrantAmount"></Currency></GovTableData>
+                <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
+                <GovTableData><GovLink Href="@($"/providers/byid/{ProviderId}/properties/byid/{PropertyId}/grantMilestones/byid/{milestone.GrantMilestoneId}")">Update</GovLink></GovTableData>
+            </RowTemplate>
+        </GovTable>
+    }
+    else{
+        <Inset>No grant milestones have been created against this property</Inset>
+    }
+
+    <Heading Size="HeadingSize.Medium">Expenses</Heading>
+    <Inset>No expenses have been claimed against this property</Inset>
 }
 else
 {
@@ -90,6 +113,8 @@ else
 
     private Provider? Provider { get; set; }
 
+    private IEnumerable<GrantMilestone>? GrantMilestones { get; set; }
+
     [Parameter]
     public Guid ProviderId { get; set; }
 
@@ -98,11 +123,24 @@ else
 
     private Property? Property { get; set; }
 
+    public string PageTitle { get; set; } = "Property details";
+
     protected override async Task OnInitializedAsync()
     {
         Provider = await repo.GetProvider(ProviderId);
         Property = await repo.GetPropertyForProvider(PropertyId, ProviderId);
 
+        if (Provider != null && Property != null)
+        {
+            if (Property.Scheme.ProviderId != ProviderId)
+            {
+                throw new InvalidOperationException("Provider and property doesn't match");
+
+            }
+
+            GrantMilestones = await repo.GetGrantMilestones(PropertyId);
+            PageTitle = $"{Property.PropertyName} - Property details";
+        } 
     }
 
     [CascadingParameter]

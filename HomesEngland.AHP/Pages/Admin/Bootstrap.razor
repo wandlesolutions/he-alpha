@@ -34,11 +34,11 @@
         var features = await grantRepo.GetFeatures();
 
         await EnsureFeature(features, new Feature()
-        {
-            FeatureName = "Provider can create properties",
-            FeatureKey = "ProviderCanCreateProperties",
-            Description = "Enables a provider to create properties under a scheme in the portal",
-        });
+            {
+                FeatureName = "Provider can create properties",
+                FeatureKey = "ProviderCanCreateProperties",
+                Description = "Enables a provider to create properties under a scheme in the portal",
+            });
 
         await EnsureFeature(features, new Feature()
             {
@@ -61,12 +61,12 @@
                 Description = "Programme will have support for grant milestones within schemes",
             });
 
-            var grantMilestoneTemplateTypes = await grantRepo.GetGrantMilestoneTemplateTypes();
+        var grantMilestoneTemplateTypes = await grantRepo.GetGrantMilestoneTemplateTypes();
 
         await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
             {
                 MilestoneTypeName = "Acquisition of land",
-               Enabled = true,
+                Enabled = true,
             });
 
         await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
@@ -80,12 +80,27 @@
                 MilestoneTypeName = "Practical completion",
                 Enabled = true,
             });
-            
+
         await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
             {
                 MilestoneTypeName = "Exchange of contract",
                 Enabled = true,
             });
+
+        var financialYears = await grantRepo.GetFinancialYears();
+
+        // Ensure financial years from 2010 to 2030 are created using EnsureFinancialYear
+        for (int currentYear = 2010; currentYear < 2030; currentYear++)
+        {
+            await EnsureFinancialYear(financialYears, new FinancialYear()
+                {
+                    FinancialYearName = $"{currentYear}-{(currentYear + 1) -  2000}",
+                    StartDate = new DateTime(currentYear, 4, 6, 0, 0, 0),
+                    EndDate = new DateTime(currentYear + 1, 4, 5, 23, 59, 59),
+                });
+        }
+
+
 
         ShowReferenceDataBanner = true;
     }
@@ -99,7 +114,7 @@
 
         await grantRepo.CreateFeature(feature);
     }
-    
+
     private async Task EnsureGrantMilestoneTemplate(IEnumerable<MilestoneType> features, MilestoneType milestoneType)
     {
         if (features.Any(f => string.Equals(f.MilestoneTypeName == milestoneType.MilestoneTypeName, StringComparison.InvariantCultureIgnoreCase)))
@@ -108,6 +123,16 @@
         }
 
         await grantRepo.CreateMilestoneType(milestoneType);
+    }
+
+    private async Task EnsureFinancialYear(IEnumerable<FinancialYear> features, FinancialYear financialYear)
+    {
+        if (features.Any(f => string.Equals(f.FinancialYearName == financialYear.FinancialYearName, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            return;
+        }
+
+        await grantRepo.CreateFinancialYear(financialYear);
     }
 
     [CascadingParameter]

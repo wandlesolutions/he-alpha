@@ -6,23 +6,30 @@
     {
         <caption class="govuk-table__caption govuk-table__caption--m">@Caption</caption>
     }
-  <thead class="govuk-table__head">
-    <tr class="govuk-table__row">
-        @Header
-      
-    </tr>
-  </thead>
-  <tbody class="govuk-table__body">
-      @foreach (var item in Items)
+    <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+            @Header
+
+        </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+        @foreach (var item in Items)
+        {
+            if (RowTemplate is not null)
             {
-                if (RowTemplate is not null)
-                {
-                    <GovTableRow>
+                <GovTableRow>
                     @RowTemplate(item)
-                    </GovTableRow>
-                }
+                </GovTableRow>
             }
-  </tbody>
+        }
+
+        @if (LastRowItem != null && LastRowTemplate != null)
+        {
+            <GovTableRow>
+                @LastRowTemplate(LastRowItem)
+            </GovTableRow>
+        }
+    </tbody>
 </table>
 
 
@@ -32,10 +39,16 @@
     public string? Caption { get; set; }
 
     [Parameter, EditorRequired]
-    public RenderFragment Header { get; set; } 
-    
+    public RenderFragment Header { get; set; }
+
     [Parameter]
     public RenderFragment<TItem>? RowTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? LastRowTemplate { get; set; }
+
+    [Parameter]
+    public TItem? LastRowItem { get; set; }
 
     [Parameter, AllowNull]
     public IEnumerable<TItem> Items { get; set; }

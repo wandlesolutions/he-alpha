@@ -48,8 +48,6 @@
     private string? _currentNavigationArea { get; set; } = null;
     private List<NavigationItem> navigationItems { get; set; } = new List<NavigationItem>();
 
-    private IDisposable? registration;
-
     protected override void OnInitialized()
     {
         navManager.LocationChanged += LocationChanged;

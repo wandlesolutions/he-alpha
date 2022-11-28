@@ -3,6 +3,7 @@
 public interface IGrantRepository
 {
 	Task<Feature> CreateFeature(Feature feature);
+	Task<FinancialYear> CreateFinancialYear(FinancialYear feature);
 	Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature);
 	Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType);
 	Task<Programme> CreateProgramme(Programme programme);
@@ -30,4 +31,8 @@ public interface IGrantRepository
 	Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId);
 	Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId);
 	Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId);
+	Task<Property?> GetProperty(Guid propertyId);
+	Task<IEnumerable<FinancialYear>> GetFinancialYears();
+	Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones);
+	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId);
 }

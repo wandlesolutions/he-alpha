@@ -18,6 +18,19 @@ public class SqlGrantRepository : IGrantRepository
 		return feature;
 	}
 
+	public async Task<FinancialYear> CreateFinancialYear(FinancialYear feature)
+	{
+		_context.FinancialYears.Add(feature);
+		await _context.SaveChangesAsync();
+		return feature;
+	}
+
+	public async Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones)
+	{
+		_context.GrantMilestones.AddRange(milestones);
+		await _context.SaveChangesAsync();
+	}
+
 	public async Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
 	{
 		_context.GrantMilestoneTemplates.Add(feature);
@@ -80,6 +93,21 @@ public class SqlGrantRepository : IGrantRepository
 		return await _context.Features.OrderBy(_ => _.FeatureName).ToListAsync();
 	}
 
+	public async Task<IEnumerable<FinancialYear>> GetFinancialYears()
+	{
+		return await _context.FinancialYears
+			.ToListAsync();
+	}
+
+	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId)
+	{
+		return await _context.GrantMilestones
+			.Include(_ => _.MilestoneType)
+			.Include(_ => _.FinancialYear)
+			.Where(_ => _.PropertyId == propertyId)
+			.ToListAsync();
+	}
+
 	public async Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
 	{
 		return await _context.GrantMilestoneTemplates
@@ -140,6 +168,11 @@ public class SqlGrantRepository : IGrantRepository
 			.OrderBy(_ => _.Scheme.SchemeName)
 			.ThenBy(_ => _.PropertyName)
 			.ToListAsync();
+	}
+
+	public async Task<Property?> GetProperty(Guid propertyId)
+	{
+		return await _context.Properties.SingleOrDefaultAsync(_ => _.PropertyId == propertyId);
 	}
 
 	public async Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)

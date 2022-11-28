@@ -1,0 +1,10 @@
+﻿@if (Value.HasValue)
+{
+    @Value.Value.ToString("0.##")<text>%</text>
+}
+
+
+@code {
+    [Parameter, EditorRequired]
+    public decimal? Value { get; set; }
+}
