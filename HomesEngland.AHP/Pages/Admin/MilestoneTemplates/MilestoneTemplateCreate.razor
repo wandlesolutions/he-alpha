@@ -1,0 +1,155 @@
+﻿@page "/admin/programmes/byid/{ProgrammeId:guid}/milestoneTemplates/create"
+@using HomesEngland.AHP.Data;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
+<PageTitle>Create milestone template</PageTitle>
+@if (Programme != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Programme.ProgrammeName</Caption>
+}
+<PageHeading>Create grant milestone template</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="grant milestone template">
+        <MainContents>
+
+            <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+
+                <FormSelect Id="milestoneTypeId" @bind-Value="CreateModel.MilestoneTypeId" Label="Milestone type" Items="MilestoneTypes"></FormSelect>
+                <FormInputPercentage Id="percentage" @bind-Value="CreateModel.Percentage" Label="Milestone percentage"></FormInputPercentage>
+                <FormInputText Id="order" @bind-Value="CreateModel.MilestoneOrder" Label="Milestone order" Width="TextboxWidth.ThreeCharacters"></FormInputText>
+                <FormInputText Id="targetNumberOfDays" @bind-Value="CreateModel.TargetNumberOfDays" Label="Target number of days to completion after property creation" Width="TextboxWidth.ThreeCharacters"></FormInputText>
+
+                <CustomValidation @ref="customValidation"></CustomValidation>
+
+
+                <SubmitButton Disabled="disableSubmitButton" Label="Add milestone" />
+            </FormLayout>
+
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private GrantMilestoneTemplateCreateFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    private SelectListItem[]? MilestoneTypes { get; set; }
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    [Parameter]
+    public Guid ProgrammeId { get; set; }
+
+    public Programme? Programme{ get; set; }
+
+    protected override void OnParametersSet()
+    {
+         if (Programme != null)
+        {
+            MainLayout.SetBreadcrumbs(
+                BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes()
+                .AddAdminProgramme(Programme)
+                .AddAdminGrantMilestoneTemplates(Programme));
+        }
+        else
+        {
+            BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        Programme = await grantRepo.GetProgramme(ProgrammeId);
+
+        MilestoneTypes = (await grantRepo.GetGrantMilestoneTemplateTypes())
+            .Where(_ => _.Enabled)
+            .Select(x => new SelectListItem(x.MilestoneTypeName, x.MilestoneTypeId.ToString()))
+            .ToArray();
+
+        pageState = PageStatus.Visible;
+
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+
+        customValidation.ClearErrors();
+
+        // Parse order from create model, add customValidation if not an int
+        if (int.TryParse(CreateModel.MilestoneOrder, out var order))
+        {
+            if (order < 0)
+            {
+                customValidation?.AddErrorMessage(nameof(CreateModel.MilestoneOrder), "Order must be greater than 0");
+            }
+        }
+        else
+        {
+            customValidation?.AddErrorMessage(nameof(CreateModel.MilestoneOrder), "Order must be a valid integer");
+        }
+
+        // Parse target number of days from create model, add customValidation if not an int
+        if (int.TryParse(CreateModel.TargetNumberOfDays, out var targetNumberOfDays))
+        {
+            if (targetNumberOfDays < 0)
+            {
+                customValidation?.AddErrorMessage(nameof(CreateModel.TargetNumberOfDays), "Target number of days must be greater than 0");
+            }
+        }
+        else
+        {
+            customValidation?.AddErrorMessage(nameof(CreateModel.TargetNumberOfDays), "Target number of days must be a valid integer");
+        }
+
+        
+        if (editContext != null && editContext.Validate())
+        {
+
+            GrantMilestoneTemplate template = new()
+                {
+                    Percentage = CreateModel.Percentage.Value,
+                    TargetNumberOfDays = targetNumberOfDays,
+                    MilestoneOrder = order,
+                    MilestoneTypeId = new Guid(CreateModel.MilestoneTypeId),
+                    ProgrammeId = ProgrammeId,
+                };
+
+            GrantMilestoneTemplate result = await grantRepo.CreateGrantMilestoneTemplate(template);
+
+            if (result != null)
+            {
+                navManager.NavigateTo($"/admin/programmes/byid/{ProgrammeId}/milestoneTemplates?createSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+}

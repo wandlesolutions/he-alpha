@@ -4,11 +4,11 @@ namespace HomesEngland.AHP.Data;
 
 public class MilestoneType
 {
-    public Guid MilestoneTypeId { get; set; }
+	public Guid MilestoneTypeId { get; set; }
 
-    [Required, StringLength(32)]
-    public string MilestoneName { get; set; }
+	[Required, StringLength(32)]
+	public string MilestoneTypeName { get; set; }
 
-    [Required]
-    public bool Enabled { get; set; }
+	[Required]
+	public bool Enabled { get; set; }
 }

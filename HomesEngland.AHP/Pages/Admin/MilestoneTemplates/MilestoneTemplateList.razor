@@ -1,0 +1,104 @@
+﻿@page "/admin/programmes/byid/{ProgrammeId:guid}/milestoneTemplates"
+@using HomesEngland.AHP.Data;
+@using HomesEngland.AHP;
+@inject IGrantRepository repo
+
+@if (CreateSuccessful.HasValue && CreateSuccessful.Value)
+{
+    <NotificationBanner Text="Milestone template has been created successfully" Title="Information"></NotificationBanner>
+}
+
+<PageTitle>Milestone template</PageTitle>
+
+@if (Programme != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Programme.ProgrammeName</Caption>
+}
+
+<PageHeadingActionLinkContainer Heading="Grant milestone templates">
+    <ActionLinks>
+        <ActionLink Href="@($"/admin/programmes/byid/{ProgrammeId}/milestoneTemplates/create")">Add Grant milestone</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+
+@if (Programme != null)
+{
+    @if (GrantMilestones != null && GrantMilestones.Any())
+    {
+
+
+        <GovTable Items="GrantMilestones" Context="template">
+            <Header>
+                <GovTableHeader>Milestone type</GovTableHeader>
+                <GovTableHeader>Grant percentage</GovTableHeader>
+                <GovTableHeader>Days from property creation</GovTableHeader>
+                <GovTableHeader>Order</GovTableHeader>
+            </Header>
+            <RowTemplate>
+                <GovTableData>@template.MilestoneType.MilestoneTypeName</GovTableData>
+                <GovTableData>@template.Percentage%</GovTableData>
+                <GovTableData>
+                    @template.TargetNumberOfDays
+                </GovTableData>
+                <GovTableData>
+                    @template.MilestoneOrder
+                </GovTableData>
+            </RowTemplate>
+        </GovTable>
+    }
+    else
+    {
+        <Inset>No grant milestones templates exist, <GovLink Href="@($"/admin/programmes/byid/{ProgrammeId}/milestoneTemplates/create")">create a new one</GovLink>. </Inset>
+    }
+}
+else
+{
+    <Inset>Programme not found</Inset>
+}
+
+@code {
+
+    private Programme? Programme { get; set; }
+
+    private IEnumerable<GrantMilestoneTemplate>? GrantMilestones { get; set; }
+
+    [CascadingParameter()]
+    public MainLayout MainLayout { get; set; }
+
+    [Parameter]
+    public Guid ProgrammeId { get; set; }
+
+    [Parameter]
+    public bool? CreateSuccessful { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Programme != null)
+        {
+            MainLayout.SetBreadcrumbs(
+                BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes()
+                .AddAdminProgramme(Programme));
+        }
+        else
+        {
+            BreadcrumbItem.AdminBase()
+                .AddAdminProgrammes();
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Programme = await repo.GetProgramme(ProgrammeId);
+
+        if (Programme != null)
+        {
+
+            GrantMilestones = await repo.GetGrantMilestoneTemplates(ProgrammeId);
+
+
+        }
+    }
+}

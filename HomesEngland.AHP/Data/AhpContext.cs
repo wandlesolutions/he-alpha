@@ -22,6 +22,7 @@ public class AhpContext : DbContext
 	public DbSet<Property> Properties { get; set; }
 	public DbSet<MilestoneType> MilestoneTypes { get; set; }
 	public DbSet<GrantMilestone> GrantMilestones { get; set; }
+	public DbSet<GrantMilestoneTemplate> GrantMilestoneTemplates { get; set; }
 
 	public DbSet<PropertyExpenseClaim> PropertyExpenseClaims { get; set; }
 

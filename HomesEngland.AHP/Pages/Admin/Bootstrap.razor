@@ -61,6 +61,32 @@
                 Description = "Programme will have support for grant milestones within schemes",
             });
 
+            var grantMilestoneTemplateTypes = await grantRepo.GetGrantMilestoneTemplateTypes();
+
+        await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
+            {
+                MilestoneTypeName = "Acquisition of land",
+               Enabled = true,
+            });
+
+        await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
+            {
+                MilestoneTypeName = "Start on site",
+                Enabled = true,
+            });
+
+        await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
+            {
+                MilestoneTypeName = "Practical completion",
+                Enabled = true,
+            });
+            
+        await EnsureGrantMilestoneTemplate(grantMilestoneTemplateTypes, new MilestoneType()
+            {
+                MilestoneTypeName = "Exchange of contract",
+                Enabled = true,
+            });
+
         ShowReferenceDataBanner = true;
     }
 
@@ -72,6 +98,16 @@
         }
 
         await grantRepo.CreateFeature(feature);
+    }
+    
+    private async Task EnsureGrantMilestoneTemplate(IEnumerable<MilestoneType> features, MilestoneType milestoneType)
+    {
+        if (features.Any(f => string.Equals(f.MilestoneTypeName == milestoneType.MilestoneTypeName, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            return;
+        }
+
+        await grantRepo.CreateMilestoneType(milestoneType);
     }
 
     [CascadingParameter]

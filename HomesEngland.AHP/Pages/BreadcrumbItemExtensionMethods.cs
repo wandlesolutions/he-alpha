@@ -17,6 +17,12 @@ public static class BreadcrumbItemExtensionMethods
 		return breadcrumbItems;
 	}
 
+	public static List<BreadcrumbItem> AddAdminGrantMilestoneTemplates(this List<BreadcrumbItem> breadcrumbItems, Programme programme)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/admin/programmes/byid/{programme.ProgrammeId}/milestoneTemplates", "Milestone templates"));
+		return breadcrumbItems;
+	}
+
 	public static List<BreadcrumbItem> AddAdminProgrammes(this List<BreadcrumbItem> breadcrumbItems)
 	{
 		breadcrumbItems.Add(new BreadcrumbItem("/admin/programmes", "Programmes"));

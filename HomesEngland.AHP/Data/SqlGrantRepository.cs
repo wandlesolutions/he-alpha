@@ -18,6 +18,20 @@ public class SqlGrantRepository : IGrantRepository
 		return feature;
 	}
 
+	public async Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
+	{
+		_context.GrantMilestoneTemplates.Add(feature);
+		await _context.SaveChangesAsync();
+		return feature;
+	}
+
+	public async Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType)
+	{
+		_context.MilestoneTypes.Add(milestoneType);
+		await _context.SaveChangesAsync();
+		return milestoneType;
+	}
+
 	public async Task<Programme> CreateProgramme(Programme programme)
 	{
 		await _context.Programmes.AddAsync(programme);
@@ -64,6 +78,22 @@ public class SqlGrantRepository : IGrantRepository
 	public async Task<IEnumerable<Feature>> GetFeatures()
 	{
 		return await _context.Features.OrderBy(_ => _.FeatureName).ToListAsync();
+	}
+
+	public async Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
+	{
+		return await _context.GrantMilestoneTemplates
+			.Include(_ => _.MilestoneType)
+			.Where(_ => _.ProgrammeId == programmeId)
+			.OrderBy(_ => _.MilestoneOrder)
+			.ToListAsync();
+	}
+
+	public async Task<IEnumerable<MilestoneType>> GetGrantMilestoneTemplateTypes()
+	{
+		return await _context.MilestoneTypes
+			.OrderBy(_ => _.MilestoneTypeName)
+			.ToListAsync();
 	}
 
 	public async Task<Programme?> GetProgramme(Guid programmeId)

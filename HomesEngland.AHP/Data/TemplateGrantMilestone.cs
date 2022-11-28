@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomesEngland.AHP.Data;
 
-public class TemplateGrantMilestone
+public class GrantMilestoneTemplate
 {
 	[Key, Required]
 	public Guid TemplateGrantMilestoneId { get; set; }

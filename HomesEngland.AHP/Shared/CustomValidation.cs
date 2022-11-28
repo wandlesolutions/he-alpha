@@ -42,6 +42,14 @@ public class CustomValidation : ComponentBase
 		}
 	}
 
+	public void AddErrorMessage(string key, string message)
+	{
+		if (CurrentEditContext is not null)
+		{
+			messageStore?.Add(CurrentEditContext.Field(key), message);
+		}
+	}
+
 	public void ClearErrors()
 	{
 		messageStore?.Clear();

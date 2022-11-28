@@ -18,7 +18,7 @@ public class Programme
 
 	public ICollection<ProgrammeFeature> ProgrammeFeatures { get; set; }
 
-	public ICollection<TemplateGrantMilestone> TemplateGrantMilestones { get; set; }
+	public ICollection<GrantMilestoneTemplate> TemplateGrantMilestones { get; set; }
 
 	public ICollection<Scheme> Schemes { get; set; }
 }
