@@ -234,7 +234,9 @@ public class SqlGrantRepository : IGrantRepository
 	{
 		using var context = GetContext();
 
-		return await context.Properties.SingleOrDefaultAsync(_ => _.PropertyId == propertyId);
+		return await context.Properties
+			.Include(_ => _.Scheme)
+			.SingleOrDefaultAsync(_ => _.PropertyId == propertyId);
 	}
 
 	public async Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)

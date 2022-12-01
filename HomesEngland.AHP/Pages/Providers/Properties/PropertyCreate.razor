@@ -23,20 +23,20 @@
                 <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                     <FormInputText Id="propertyName" @bind-Value="CreateModel.PropertyName" Label="Property name" Width="TextboxWidth.TwentyCharacters"></FormInputText>
 
-                <FormSelect Id="programmeId" Label="Programme" Items="Programmes" ValueChanged="OnProgrammeSelected"></FormSelect>
-                <FormSelect Id="schemeId" @bind-Value="CreateModel.SchemeId" Label="Scheme" Items="Schemes" NoItemsText="Choose a programme before selecting a scheme"></FormSelect>
+                    <FormSelect Id="programmeId" Label="Programme" Items="Programmes" ValueChanged="OnProgrammeSelected"></FormSelect>
+                    <FormSelect Id="schemeId" @bind-Value="CreateModel.SchemeId" Label="Scheme" Items="Schemes" NoItemsText="Choose a programme before selecting a scheme"></FormSelect>
 
-                <FormInputText Id="address1" @bind-Value="CreateModel.Address1" Label="Address line 1" Width="TextboxWidth.OneHalf"></FormInputText>
-                <FormInputText Id="address2" @bind-Value="CreateModel.Address2" Label="Address line 2" Width="TextboxWidth.OneHalf"></FormInputText>
-                <FormInputText Id="postcode" @bind-Value="CreateModel.Postcode" Label="Postcode" Width="TextboxWidth.TenCharacters"></FormInputText>
-                <FormInputText Id="localAuthority" @bind-Value="CreateModel.LocalAuthority" Label="Local Authority" Width="TextboxWidth.TwentyCharacters"></FormInputText>
+                    <FormInputText Id="address1" @bind-Value="CreateModel.Address1" Label="Address line 1" Width="TextboxWidth.OneHalf"></FormInputText>
+                    <FormInputText Id="address2" @bind-Value="CreateModel.Address2" Label="Address line 2" Width="TextboxWidth.OneHalf"></FormInputText>
+                    <FormInputText Id="postcode" @bind-Value="CreateModel.Postcode" Label="Postcode" Width="TextboxWidth.TenCharacters"></FormInputText>
+                    <FormInputText Id="localAuthority" @bind-Value="CreateModel.LocalAuthority" Label="Local Authority" Width="TextboxWidth.TwentyCharacters"></FormInputText>
 
-                <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
-                <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Expenses amount"></FormInputMoney>
+                    <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
+                    <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Expenses amount"></FormInputMoney>
 
-                <CustomValidation @ref="customValidation"></CustomValidation>
+                    <CustomValidation @ref="customValidation"></CustomValidation>
 
-                <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
+                    <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
                 </FormLayout>
             }
             else
@@ -74,7 +74,7 @@
         .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
             .ToArray();
 
-        if(Programmes.Count() == 1)
+        if (Programmes.Count() == 1)
         {
             CreateModel.ProgrammeId = Programmes.First().Value;
         }
