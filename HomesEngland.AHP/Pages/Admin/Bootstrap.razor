@@ -3,7 +3,7 @@
 @inject IGrantRepository grantRepo
 @inject AhpContext ctx
 
-<PageTitle>Setup reference data in P.A.N.O.S</PageTitle>
+<PageTitle>Setup reference data in @Constants.SystemName</PageTitle>
 
 @if (ShowReferenceDataBanner)
 {
@@ -16,6 +16,10 @@
 <Paragraph>Populate core reference data such as financial years and features</Paragraph>
 
 <GovButton OnClick="PopulateReferenceData">Populate reference data</GovButton>
+
+<div>
+    <GovButton OnClick="ClearData">Clear all system data</GovButton>
+</div>
 
 @code {
     private bool ShowReferenceDataBanner { get; set; } = false;
@@ -133,6 +137,11 @@
         }
 
         await grantRepo.CreateFinancialYear(financialYear);
+    }
+
+    private async Task ClearData()
+    {
+        await grantRepo.ClearData();
     }
 
     [CascadingParameter]

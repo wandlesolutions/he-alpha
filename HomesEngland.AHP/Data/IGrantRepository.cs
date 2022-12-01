@@ -2,6 +2,8 @@
 
 public interface IGrantRepository
 {
+
+	Task ClearData();
 	Task<Feature> CreateFeature(Feature feature);
 	Task<FinancialYear> CreateFinancialYear(FinancialYear feature);
 	Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature);
@@ -36,4 +38,6 @@ public interface IGrantRepository
 	Task<IEnumerable<FinancialYear>> GetFinancialYears();
 	Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones);
 	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId);
+
+	Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate);
 }

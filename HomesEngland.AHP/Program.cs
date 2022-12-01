@@ -9,7 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
-builder.Services.AddDbContext<AhpContext>(options =>
+builder.Services.AddDbContextFactory<AhpContext>(options =>
 {
 	string connectionString = builder.Configuration.GetConnectionString("AhpContext");
 	options.UseSqlServer(connectionString);

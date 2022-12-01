@@ -4,104 +4,137 @@ namespace HomesEngland.AHP.Data;
 
 public class SqlGrantRepository : IGrantRepository
 {
-	private readonly AhpContext _context;
+	private IDbContextFactory<AhpContext> _factory;
 
-	public SqlGrantRepository(AhpContext ahpContext)
+	public SqlGrantRepository(IDbContextFactory<AhpContext> ahpContextFactory)
 	{
-		_context = ahpContext;
+		_factory = ahpContextFactory;
+	}
+
+	private AhpContext GetContext()
+	{
+		return _factory.CreateDbContext();
 	}
 
 	public async Task<Feature> CreateFeature(Feature feature)
 	{
-		_context.Features.Add(feature);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		context.Features.Add(feature);
+		await context.SaveChangesAsync();
 		return feature;
 	}
 
 	public async Task<FinancialYear> CreateFinancialYear(FinancialYear feature)
 	{
-		_context.FinancialYears.Add(feature);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		context.FinancialYears.Add(feature);
+		await context.SaveChangesAsync();
 		return feature;
 	}
 
 	public async Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones)
 	{
-		_context.GrantMilestones.AddRange(milestones);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		context.GrantMilestones.AddRange(milestones);
+		await context.SaveChangesAsync();
 	}
 
 	public async Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
 	{
-		_context.GrantMilestoneTemplates.Add(feature);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		context.GrantMilestoneTemplates.Add(feature);
+		await context.SaveChangesAsync();
 		return feature;
 	}
 
 	public async Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType)
 	{
-		_context.MilestoneTypes.Add(milestoneType);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		context.MilestoneTypes.Add(milestoneType);
+		await context.SaveChangesAsync();
 		return milestoneType;
 	}
 
 	public async Task<Programme> CreateProgramme(Programme programme)
 	{
-		await _context.Programmes.AddAsync(programme);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		await context.Programmes.AddAsync(programme);
+		await context.SaveChangesAsync();
 		return programme;
 	}
 
 	public async Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
 	{
-		await _context.ProgrammeFeatures.AddAsync(programmeFeature);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		await context.ProgrammeFeatures.AddAsync(programmeFeature);
+		await context.SaveChangesAsync();
 		return programmeFeature;
 	}
 
 	public async Task<Property> CreateProperty(Property property)
 	{
-		await _context.Properties.AddAsync(property);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		await context.Properties.AddAsync(property);
+		await context.SaveChangesAsync();
 		return property;
 	}
 
 	public async Task<Provider> CreateProvider(Provider provider)
 	{
-		await _context.Providers.AddAsync(provider);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		await context.Providers.AddAsync(provider);
+		await context.SaveChangesAsync();
 		return provider;
 	}
 
 	public async Task<Scheme> CreateScheme(Scheme scheme)
 	{
-		await _context.Schemes.AddAsync(scheme);
-		await _context.SaveChangesAsync();
+		using var context = GetContext();
+
+		await context.Schemes.AddAsync(scheme);
+		await context.SaveChangesAsync();
 		return scheme;
 	}
 
 	public async Task DeleteProgrammeFeature(Guid programmeFeatureId)
 	{
-		var programmeFeature = await _context.ProgrammeFeatures
+		using var context = GetContext();
+
+		var programmeFeature = await context.ProgrammeFeatures
 			.Where(_ => _.ProgrammeFeatureId == programmeFeatureId)
 			.ExecuteDeleteAsync();
-		await _context.SaveChangesAsync();
+		await context.SaveChangesAsync();
 	}
 
 	public async Task<IEnumerable<Feature>> GetFeatures()
 	{
-		return await _context.Features.OrderBy(_ => _.FeatureName).ToListAsync();
+		using var context = GetContext();
+
+		return await context.Features.OrderBy(_ => _.FeatureName).ToListAsync();
 	}
 
 	public async Task<IEnumerable<FinancialYear>> GetFinancialYears()
 	{
-		return await _context.FinancialYears
+		using var context = GetContext();
+
+		return await context.FinancialYears
 			.ToListAsync();
 	}
 
 	public async Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId)
 	{
-		return await _context.GrantMilestones
+		using var context = GetContext();
+
+		return await context.GrantMilestones
 			.Include(_ => _.FinancialYear)
 			.Include(_ => _.MilestoneType)
 			.Include(_ => _.Property)
@@ -110,7 +143,9 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId)
 	{
-		return await _context.GrantMilestones
+		using var context = GetContext();
+
+		return await context.GrantMilestones
 			.Include(_ => _.MilestoneType)
 			.Include(_ => _.FinancialYear)
 			.Where(_ => _.PropertyId == propertyId)
@@ -119,7 +154,9 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
 	{
-		return await _context.GrantMilestoneTemplates
+		using var context = GetContext();
+
+		return await context.GrantMilestoneTemplates
 			.Include(_ => _.MilestoneType)
 			.Where(_ => _.ProgrammeId == programmeId)
 			.OrderBy(_ => _.MilestoneOrder)
@@ -128,29 +165,39 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<IEnumerable<MilestoneType>> GetGrantMilestoneTemplateTypes()
 	{
-		return await _context.MilestoneTypes
+		using var context = GetContext();
+
+		return await context.MilestoneTypes
 			.OrderBy(_ => _.MilestoneTypeName)
 			.ToListAsync();
 	}
 
 	public async Task<Programme?> GetProgramme(Guid programmeId)
 	{
-		return await _context.Programmes.SingleOrDefaultAsync(_ => _.ProgrammeId == programmeId);
+		using var context = GetContext();
+
+		return await context.Programmes.SingleOrDefaultAsync(_ => _.ProgrammeId == programmeId);
 	}
 
 	public async Task<IEnumerable<ProgrammeFeature>> GetProgrammeFeatures(Guid programmeId)
 	{
-		return await _context.ProgrammeFeatures.Where(_ => _.ProgrammeId == programmeId).ToListAsync();
+		using var context = GetContext();
+
+		return await context.ProgrammeFeatures.Where(_ => _.ProgrammeId == programmeId).ToListAsync();
 	}
 
 	public async Task<IEnumerable<Programme>> GetProgrammes()
 	{
-		return await _context.Programmes?.OrderBy(_ => _.ProgrammeName).ToListAsync();
+		using var context = GetContext();
+
+		return await context.Programmes?.OrderBy(_ => _.ProgrammeName).ToListAsync();
 	}
 
 	public async Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId)
 	{
-		return await _context.Schemes
+		using var context = GetContext();
+
+		return await context.Schemes
 			.Where(_ => _.ProviderId == providerId)
 			.Select(_ => _.Programme)
 			.Distinct()
@@ -159,8 +206,10 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
 	{
+		using var context = GetContext();
+
 		// Return programmes where feature key has value of 'ProviderCanCreateSchemes'
-		return await _context.ProgrammeFeatures
+		return await context.ProgrammeFeatures
 			.Where(_ => _.Feature.FeatureKey == FeatureToggles.ProviderCanCreateSchemes)
 			.Select(_ => _.Programme)
 			.Distinct()
@@ -169,8 +218,10 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
 	{
+		using var context = GetContext();
+
 		// Get properties for a provider, ordered by schemeName, then property name
-		return await _context.Properties
+		return await context.Properties
 			.Include(_ => _.Scheme)
 			.Include(_ => _.Scheme.Programme)
 			.Where(_ => _.Scheme.ProviderId == providerId)
@@ -181,12 +232,16 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<Property?> GetProperty(Guid propertyId)
 	{
-		return await _context.Properties.SingleOrDefaultAsync(_ => _.PropertyId == propertyId);
+		using var context = GetContext();
+
+		return await context.Properties.SingleOrDefaultAsync(_ => _.PropertyId == propertyId);
 	}
 
 	public async Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)
 	{
-		return await _context.Properties
+		using var context = GetContext();
+
+		return await context.Properties
 			.Include(_ => _.Scheme)
 			.Include(_ => _.Scheme.Programme)
 			.Where(_ => _.Scheme.ProviderId == providerId && _.PropertyId == propertyId)
@@ -195,27 +250,71 @@ public class SqlGrantRepository : IGrantRepository
 
 	public async Task<Provider?> GetProvider(Guid providerId)
 	{
-		return await _context.Providers.SingleOrDefaultAsync(_ => _.ProviderId == providerId);
+		using var context = GetContext();
+
+		return await context.Providers.SingleOrDefaultAsync(_ => _.ProviderId == providerId);
 	}
 
 	public async Task<IEnumerable<Provider>> GetProviders()
 	{
-		return await _context.Providers?.OrderBy(_ => _.ProviderName).ToListAsync();
+		using var context = GetContext();
+
+		return await context.Providers?.OrderBy(_ => _.ProviderName).ToListAsync();
 	}
 
 	public async Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId)
 	{
-		return await _context.Schemes
+		using var context = GetContext();
+
+		return await context.Schemes
 			.Where(_ => _.ProgrammeId == programmeId && _.ProviderId == providerId)
 			.ToListAsync();
 	}
 
 	public async Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId)
 	{
-		return await _context.Schemes
+		using var context = GetContext();
+
+		return await context.Schemes
 			.Include(_ => _.Programme)
 			.Where(_ => _.ProviderId == providerId)
 			.OrderBy(_ => _.SchemeName)
 			.ToListAsync();
+	}
+
+	public async Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate)
+	{
+		using var context = GetContext();
+
+		int records = await context.GrantMilestones
+			.Where(_ => _.GrantMilestoneId == grantMilestoneId)
+			.ExecuteUpdateAsync(_ => _.SetProperty(p => p.TargetDate, targetDate));
+
+		await context.SaveChangesAsync();
+
+		if (records != 1)
+		{
+			throw new InvalidOperationException("Grant milestone not found");
+		}
+	}
+
+	public async Task ClearData()
+	{
+		using var context = GetContext();
+
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM PaymentRequests");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM FinancialYears");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM PropertyExpenseClaims");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM GrantMilestones");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM GrantMilestoneTemplates");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM MilestoneTypes");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM Properties");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM Schemes");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM Providers");
+
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM ProgrammeFeatures");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM Features");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM Programmes");
+
 	}
 }

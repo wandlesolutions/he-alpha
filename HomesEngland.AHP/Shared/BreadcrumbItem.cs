@@ -19,19 +19,19 @@ public class BreadcrumbItem : IEquatable<BreadcrumbItem>
 
 	public static List<BreadcrumbItem> AdminBase() => new()
 	{
-		new BreadcrumbItem("/", "P.A.N.O.S"),
+		new BreadcrumbItem("/", Constants.SystemName),
 		new BreadcrumbItem("/admin", "Admin"),
 	};
 
 	public static List<BreadcrumbItem> ProviderBase() => new()
 	{
-		new BreadcrumbItem("/", "P.A.N.O.S"),
+		new BreadcrumbItem("/", Constants.SystemName),
 		new BreadcrumbItem("/providers", "Login as provider"),
 	};
 
 	public static List<BreadcrumbItem> Home() => new()
 	{
-		new BreadcrumbItem("/", "P.A.N.O.S"),
+		new BreadcrumbItem("/", Constants.SystemName),
 	};
 
 	public bool Equals(BreadcrumbItem? other)

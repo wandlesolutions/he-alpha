@@ -4,7 +4,6 @@
 @inject IServiceProvider serviceProvider
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
-@inject MilestoneCreationService milestoneCreationService
 
 @if (GrantMilestone != null && Property != null)
 {
@@ -125,54 +124,37 @@
 
     public async Task OnSubmit()
     {
-        //pageState = PageStatus.PerformingAction;
-        //disableSubmitButton = true;
-        //if (editContext != null && editContext.Validate())
-        //{
-        //    decimal totalAmount = 0;
-        //    if (CreateModel.ExpensesAmount.HasValue)
-        //    {
-        //        totalAmount += CreateModel.ExpensesAmount.Value;
-        //    }
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
 
-        //    if (CreateModel.GrantAmount.HasValue)
-        //    {
-        //        totalAmount += CreateModel.GrantAmount.Value;
-        //    }
+        if (CreateModel.TargetDate.HasValue)
+        {
+            // Add validation message if targetdate is today or earlier
+            customValidation?.ClearErrors();
+            customValidation?.AddErrorMessage(nameof(CreateModel.TargetDate), "Date must be set to tomorrow or in the future");
+        }
 
-        //    Property property = new()
-        //        {
-        //            SchemeId = new Guid(CreateModel.SchemeId),
-        //            PropertyName = CreateModel.PropertyName,
-        //            Address1 = CreateModel.Address1,
-        //            Address2 = CreateModel.Address2,
-        //            Postcode = CreateModel.Postcode,
-        //            LocalAuthority = CreateModel.LocalAuthority,
-        //            ExpensesAmount = CreateModel.ExpensesAmount,
-        //            GrantAmount = CreateModel.GrantAmount,
-        //            TotalAmount = totalAmount,
-        //        };
+        if (editContext != null && editContext.Validate())
+        {
+            try
+            {
+                await grantRepo.UpdateGrantMilestoneDate(GrantMilestoneId, CreateModel.TargetDate.Value);
+                navManager.NavigateTo($"/providers/byid/{ProviderId}/properties/byid/{PropertyId}");
 
-        //    Property result = await grantRepo.CreateProperty(property);
+            }
+            catch (Exception)
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
 
-        //    await milestoneCreationService.CreateMilestoneAfterPropertyIsCreated(result.PropertyId);
-
-        //    if (result != null)
-        //    {
-        //        navManager.NavigateTo($"/providers/byid/{ProviderId}/properties/byid/{result.PropertyId}?createSuccessful=true");
-        //    }
-        //    else
-        //    {
-        //        //customValidation?.DisplayErrors(result.ModelState);
-        //        disableSubmitButton = false;
-        //        pageState = PageStatus.Visible;
-        //    }
-        //}
-        //else
-        //{
-        //    disableSubmitButton = false;
-        //    pageState = PageStatus.Visible;
-        //}
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
     }
 
     public void OnDecision()

@@ -6,6 +6,11 @@
 @inject NavigationManager navManager
 @inject MilestoneCreationService milestoneCreationService
 
+<PageTitle>Create property</PageTitle>
+@if (Provider != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Provider.ProviderName</Caption>
+}
 <PageHeading>Create property</PageHeading>
 
 
@@ -15,9 +20,6 @@
 
             @if (Programmes != null && Programmes.Any())
             {
-
-
-
                 <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                     <FormInputText Id="propertyName" @bind-Value="CreateModel.PropertyName" Label="Property name" Width="TextboxWidth.TwentyCharacters"></FormInputText>
 

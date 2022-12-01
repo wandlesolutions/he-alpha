@@ -4,6 +4,12 @@
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
 
+
+<PageTitle>Create scheme</PageTitle>
+@if(Provider != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Provider.ProviderName</Caption>
+}
 <PageHeading>Create scheme</PageHeading>
 
 
