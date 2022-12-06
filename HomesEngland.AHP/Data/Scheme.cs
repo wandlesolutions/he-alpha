@@ -24,6 +24,8 @@ public class Scheme
 
 	public ICollection<Property>? Properties { get; set; }
 
+	public ICollection<GrantMilestone>? GrantMilestones { get; set; }
+
 	[Column(TypeName = ColumnTypes.Money)]
 	public decimal? TotalGrant { get; set; }
 

@@ -40,6 +40,12 @@ public static class BreadcrumbItemExtensionMethods
 		return breadcrumbItems;
 	}
 
+	public static List<BreadcrumbItem> AddScheme(this List<BreadcrumbItem> breadcrumbItems, Provider provider, Scheme scheme)
+	{
+		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/schemes/byid/{scheme.SchemeId}", scheme.SchemeName));
+		return breadcrumbItems;
+	}
+
 	public static List<BreadcrumbItem> AddProperties(this List<BreadcrumbItem> breadcrumbItems, Provider provider)
 	{
 		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/properties", "Properties"));

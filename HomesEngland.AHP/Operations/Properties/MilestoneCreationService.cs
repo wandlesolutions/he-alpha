@@ -12,22 +12,22 @@ public class MilestoneCreationService
 		_repo = grantRepository;
 	}
 
-	public async Task CreateMilestoneAfterPropertyIsCreated(Guid propertyId)
+	public async Task CreateMilestoneAfterSchemeIsCreated(Guid schemeId)
 	{
-		Property? property = await _repo.GetProperty(propertyId);
-		if (property == null)
+		Scheme? scheme = await _repo.GetScheme(schemeId);
+		if (scheme == null)
 		{
 			return;
 		}
 
-		IEnumerable<GrantMilestone> existingMilestones = await _repo.GetGrantMilestones(propertyId);
+		IEnumerable<GrantMilestone> existingMilestones = await _repo.GetGrantMilestones(schemeId);
 		if (existingMilestones.Any())
 		{
 			return;
 		}
 
-		IEnumerable<GrantMilestoneTemplate> templatedGrantsForProgramme = await _repo.GetGrantMilestoneTemplates(property.Scheme.ProgrammeId);
-		decimal percentageTotal = templatedGrantsForProgramme
+		IEnumerable<GrantMilestoneTemplate> templatedGrantsForScheme = await _repo.GetGrantMilestoneTemplates(scheme.ProgrammeId);
+		decimal percentageTotal = templatedGrantsForScheme
 			.Where(_ => _.Percentage.HasValue)
 			.Select(_ => _.Percentage.Value)
 			.Sum();
@@ -43,7 +43,7 @@ public class MilestoneCreationService
 
 		List<GrantMilestone> milestones = new();
 
-		foreach (GrantMilestoneTemplate grantMilestoneTemplate in templatedGrantsForProgramme)
+		foreach (GrantMilestoneTemplate grantMilestoneTemplate in templatedGrantsForScheme)
 		{
 			DateTimeOffset milestoneDate = now.AddDays(grantMilestoneTemplate.TargetNumberOfDays);
 
@@ -58,18 +58,18 @@ public class MilestoneCreationService
 				Completed = false,
 				CompletionDate = null,
 				FinancialYearId = financialYear.FinanicalYearId,
-				GrantAmount = Math.Round(property.GrantAmount.Value * (grantMilestoneTemplate.Percentage.Value / 100), 2),
+				GrantAmount = Math.Round(scheme.TotalGrant.Value * (grantMilestoneTemplate.Percentage.Value / 100), 2),
 				MilestoneTypeId = grantMilestoneTemplate.MilestoneTypeId,
-				PropertyId = propertyId,
+				SchemeId = schemeId,
 				TargetDate = milestoneDate,
 			};
 
 			milestones.Add(grantMilestone);
 		}
 
-		EnsureLastMilestoneHasRemainingGrantValue(property, milestones);
+		EnsureLastMilestoneHasRemainingGrantValue(scheme, milestones);
 
-		ValidateMilestoneGrantAmounts(milestones, property.GrantAmount);
+		ValidateMilestoneGrantAmounts(milestones, scheme.TotalGrant);
 
 		await _repo.CreateGrantMilestones(milestones);
 	}
@@ -86,12 +86,12 @@ public class MilestoneCreationService
 		}
 	}
 
-	private static void EnsureLastMilestoneHasRemainingGrantValue(Property? property, List<GrantMilestone> milestones)
+	private static void EnsureLastMilestoneHasRemainingGrantValue(Scheme? scheme, List<GrantMilestone> milestones)
 	{
 		GrantMilestone lastMilestone = milestones.Last();
 
 		decimal totalAmountsExceptLast = milestones.Except(new GrantMilestone[] { lastMilestone }).Sum(_ => _.GrantAmount.Value);
 
-		lastMilestone.GrantAmount = property.GrantAmount.Value - totalAmountsExceptLast;
+		lastMilestone.GrantAmount = scheme.TotalGrant.Value - totalAmountsExceptLast;
 	}
 }

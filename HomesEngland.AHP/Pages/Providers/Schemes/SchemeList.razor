@@ -24,7 +24,7 @@
         </Header>
         <RowTemplate>
             <GovTableRowHeader>
-                @scheme.SchemeName
+              <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{scheme.SchemeId}")">@scheme.SchemeName</GovLink>  
                 </GovTableRowHeader>
                 <GovTableData>@scheme.Programme.ProgrammeName</GovTableData>
                 <GovTableData><Currency Amount="@scheme.TotalAmount"></Currency></GovTableData>

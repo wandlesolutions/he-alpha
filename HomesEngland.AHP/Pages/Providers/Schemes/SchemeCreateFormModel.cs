@@ -10,6 +10,9 @@ public class SchemeCreateFormModel
 	[Required]
 	public string? ProgrammeId { get; set; }
 
-	[Required, Range(1, double.MaxValue)]
-	public decimal? TotalAmount { get; set; }
+	[Required, Range(0, double.MaxValue)]
+	public decimal? GrantAmount { get; set; }
+
+	[Required, Range(0, double.MaxValue)]
+	public decimal? ExpensesAmount { get; set; }
 }

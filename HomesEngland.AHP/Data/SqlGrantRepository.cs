@@ -137,18 +137,18 @@ public class SqlGrantRepository : IGrantRepository
 		return await context.GrantMilestones
 			.Include(_ => _.FinancialYear)
 			.Include(_ => _.MilestoneType)
-			.Include(_ => _.Property)
+			.Include(_ => _.Scheme)
 			.SingleOrDefaultAsync(_ => _.GrantMilestoneId == grantMilestoneId);
 	}
 
-	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId)
+	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
 	{
 		using var context = GetContext();
 
 		return await context.GrantMilestones
 			.Include(_ => _.MilestoneType)
 			.Include(_ => _.FinancialYear)
-			.Where(_ => _.PropertyId == propertyId)
+			.Where(_ => _.SchemeId == schemeId)
 			.ToListAsync();
 	}
 
@@ -213,6 +213,7 @@ public class SqlGrantRepository : IGrantRepository
 			.Where(_ => _.Feature.FeatureKey == FeatureToggles.ProviderCanCreateSchemes)
 			.Select(_ => _.Programme)
 			.Distinct()
+			.OrderBy(_ => _.ProgrammeName)
 			.ToListAsync();
 	}
 
@@ -318,5 +319,14 @@ public class SqlGrantRepository : IGrantRepository
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM Features");
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM Programmes");
 
+	}
+
+	public async Task<Scheme?> GetScheme(Guid schemeId)
+	{
+		using var context = GetContext();
+
+		return await context.Schemes
+			.Include(_ => _.Programme)
+			.SingleOrDefaultAsync(_ => _.SchemeId == schemeId);
 	}
 }

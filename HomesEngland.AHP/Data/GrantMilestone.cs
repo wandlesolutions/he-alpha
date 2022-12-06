@@ -10,9 +10,9 @@ public class GrantMilestone
 	public Guid GrantMilestoneId { get; set; }
 
 	[Required]
-	public Guid PropertyId { get; set; }
+	public Guid SchemeId { get; set; }
 
-	public Property Property { get; set; }
+	public Scheme Scheme { get; set; }
 
 	public DateTimeOffset TargetDate { get; set; }
 

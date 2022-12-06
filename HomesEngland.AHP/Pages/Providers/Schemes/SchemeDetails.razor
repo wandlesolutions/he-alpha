@@ -1,0 +1,143 @@
+﻿@page "/providers/byid/{ProviderId:guid}/schemes/byid/{SchemeId:guid}"
+@using HomesEngland.AHP.Data;
+@inject IGrantRepository repo
+
+<PageTitle>@PageTitle</PageTitle>
+
+@if (Scheme != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Scheme.SchemeName</Caption>
+}
+<PageHeadingActionLinkContainer Heading="Scheme Details">
+    <ActionLinks>
+        <ActionLink Href="@($"/providers/byid/{ProviderId}/schemes/expenses/create")">Claim expense</ActionLink>
+    </ActionLinks>
+</PageHeadingActionLinkContainer>
+
+@if (Scheme != null)
+{
+    <DataList>
+        <DataRow>
+            <DataTerm>Programme</DataTerm>
+            <DataDefinition>@Scheme.Programme.ProgrammeName</DataDefinition>
+        </DataRow>
+
+
+        <DataRow>
+            <DataTerm>Grant amount:</DataTerm>
+            <DataDefinition>
+                @if (Scheme.TotalGrant.HasValue)
+                {
+                    <Currency Amount="@Scheme.TotalGrant"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Expenses amount:</DataTerm>
+            <DataDefinition>
+
+                @if (Scheme.TotalExpensesAmount.HasValue)
+                {
+                    <Currency Amount="@Scheme.TotalExpensesAmount"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+
+        <DataRow>
+            <DataTerm>Total funding:</DataTerm>
+            <DataDefinition>
+
+                @if (Scheme.TotalAmount.HasValue)
+                {
+                    <Currency Amount="@Scheme.TotalAmount"></Currency>
+                }
+                else
+                {
+                    <span class="govuk-hint">None assigned</span>
+                }
+            </DataDefinition>
+        </DataRow>
+    </DataList>
+
+    
+
+    <Heading Size="HeadingSize.Medium">Grant milestones</Heading>
+    if(GrantMilestones != null && GrantMilestones.Any())
+    {
+        <GovTable Items="GrantMilestones" Context="milestone">
+            <Header>
+                <GovTableHeader>Milestone type</GovTableHeader>
+                <GovTableHeader>Funding</GovTableHeader>
+                <GovTableHeader>Date</GovTableHeader>
+                <GovTableHeader>Actions</GovTableHeader>
+            </Header>
+            <RowTemplate>
+                <GovTableRowHeader>
+                    @milestone.MilestoneType.MilestoneTypeName
+                </GovTableRowHeader>
+                <GovTableData><Currency Amount="@milestone.GrantAmount"></Currency></GovTableData>
+                <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
+                <GovTableData><GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink></GovTableData>
+            </RowTemplate>
+        </GovTable>
+    }
+    else{
+        <Inset>No grant milestones have been created against this scheme</Inset>
+    }
+
+    <Heading Size="HeadingSize.Medium">Expenses</Heading>
+    <Inset>No expenses have been claimed against this property</Inset>
+}
+else
+{
+    <Inset>Scheme does not exist for this provider</Inset>
+}
+
+@code {
+
+    private Provider? Provider { get; set; }
+
+    private IEnumerable<GrantMilestone>? GrantMilestones { get; set; }
+
+    [Parameter]
+    public Guid ProviderId { get; set; }
+
+    [Parameter]
+    public Guid SchemeId { get; set; }
+    
+    private Scheme? Scheme { get; set; }
+
+    public string PageTitle { get; set; } = "Scheme details";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Scheme = await repo.GetScheme(SchemeId);
+        Provider = await repo.GetProvider(ProviderId);
+
+        if (Provider != null && Scheme != null)
+        {
+            GrantMilestones = await repo.GetGrantMilestones(SchemeId);
+            PageTitle = $"{Scheme.SchemeName} - Scheme details";
+        } 
+    }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                   BreadcrumbItem.ProviderBase()
+                   .AddProvider (Provider)
+                   .AddSchemes(Provider));
+    }
+}

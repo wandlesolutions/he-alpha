@@ -4,7 +4,6 @@
 @inject IServiceProvider serviceProvider
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
-@inject MilestoneCreationService milestoneCreationService
 
 <PageTitle>Create property</PageTitle>
 @if (Provider != null)
@@ -132,8 +131,6 @@
                 };
 
             Property result = await grantRepo.CreateProperty(property);
-
-            await milestoneCreationService.CreateMilestoneAfterPropertyIsCreated(result.PropertyId);
 
             if (result != null)
             {

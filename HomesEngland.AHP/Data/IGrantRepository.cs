@@ -37,7 +37,8 @@ public interface IGrantRepository
 	Task<Property?> GetProperty(Guid propertyId);
 	Task<IEnumerable<FinancialYear>> GetFinancialYears();
 	Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones);
-	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid propertyId);
+	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId);
 
 	Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate);
+	Task<Scheme?> GetScheme(Guid schemeId);
 }

@@ -4,12 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomesEngland.AHP.Data;
 
-public class PropertyExpenseClaim
+public class SchemeExpenseClaim
 {
-	public Guid PropertyExpenseClaimId { get; set; }
+	public Guid SchemeExpenseClaimId { get; set; }
 
-	public Guid PropertyId { get; set; }
-	public Property Property { get; set; }
+	[Required]
+	public Guid SchemeId { get; set; }
+
+	public Scheme Scheme { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
 	public decimal ExpenseAmount { get; set; }
