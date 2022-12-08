@@ -1,6 +1,9 @@
+using BearerClient;
 using HomesEngland.AHP.Data;
+using HomesEngland.AHP.DynamicsClient;
 using HomesEngland.AHP.Operations.Properties;
 using Microsoft.EntityFrameworkCore;
+using WandleSolutions.Common.ApiClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +18,60 @@ builder.Services.AddDbContextFactory<AhpContext>(options =>
 	options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+string? repository = builder.Configuration["Repository"];
 
-builder.Services.AddScoped<IGrantRepository, SqlGrantRepository>();
+if (repository == "dynamics")
+{
+
+	builder.Services.AddSingleton<IAzureBearerTokenProxy, AzureBearerTokenProxy>();
+	builder.Services.AddSingleton<ICacheProvider, InMemoryTokenCacheProvider>();
+
+	IHttpClientBuilder httpBuilder = builder.Services.AddHttpClient("dynamicsEnvironment",
+		   (httpClient) =>
+		   {
+			   ApiOptions apiOptions = new ApiOptions();
+
+			   builder.Configuration.Bind("dynamicsEnvironment", apiOptions);
+
+			   ApiClientConfigurationOptions.SetDefaultApiClientConfigurationOptions(httpClient, apiOptions);
+		   })
+		   .ConfigurePrimaryHttpMessageHandler(() => new ApiClientHandler());
+
+	builder.Services.AddSingleton<IGrantRepository, DynamicsRepository>(_ =>
+	{
+
+		IHttpClientFactory httpClientFactory = _.GetRequiredService<IHttpClientFactory>();
+
+		IAzureBearerTokenProxy proxy = _.GetRequiredService<IAzureBearerTokenProxy>();
+
+		ICacheProvider cache = _.GetRequiredService<ICacheProvider>();
+		AzureBearerTokenOptions options = builder.Configuration
+		.GetSection("dynamicsAad")
+		.Get<AzureBearerTokenOptions>();
+
+
+
+		IBearerTokenProvider tokenProvider = new AzureBearerTokenProvider(proxy, cache, options);
+
+		ICancellationTokenProvider cancellationTokenProvider = _.GetService<ICancellationTokenProvider>();
+
+		return new DynamicsRepository(httpClientFactory, "dynamicsEnvironment", tokenProvider, cancellationTokenProvider);
+	});
+}
+else
+{
+	builder.Services.AddScoped<IGrantRepository, SqlGrantRepository>();
+
+	builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+}
+
+
 builder.Services.AddScoped<MilestoneCreationService>();
 
 builder.Services.AddResponseCompression();
 builder.Services.AddApplicationInsightsTelemetry();
+
 
 
 var app = builder.Build();

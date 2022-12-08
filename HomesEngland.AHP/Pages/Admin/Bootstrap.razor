@@ -1,5 +1,6 @@
 ﻿@page "/admin/bootstrap"
 @using HomesEngland.AHP.Data;
+@using Microsoft.EntityFrameworkCore;
 @inject IGrantRepository grantRepo
 @inject AhpContext ctx
 
@@ -8,6 +9,11 @@
 @if (ShowReferenceDataBanner)
 {
     <NotificationBanner Title="Reference data" Text="Reference data has been successfully populated"></NotificationBanner>
+}
+
+@if (ShowClearDataBanner)
+{
+    <NotificationBanner Title="Delete data" Text="System cleared of all data"></NotificationBanner>
 }
 
 <Caption CaptionSize="CaptionSize.Large">Initial system setup</Caption>
@@ -23,6 +29,7 @@
 
 @code {
     private bool ShowReferenceDataBanner { get; set; } = false;
+    private bool ShowClearDataBanner { get; set; } = false;
 
     private async Task PopulateReferenceData()
     {
@@ -32,6 +39,9 @@
 
         //	var context = services.GetRequiredService<AhpContext>();
         ctx.Database.EnsureCreated();
+
+        ctx.Database.Migrate();
+
         //DbInitializer.Initialize(ctx);
         //}
 
@@ -107,6 +117,7 @@
 
 
         ShowReferenceDataBanner = true;
+        ShowClearDataBanner = false;
     }
 
     private async Task EnsureFeature(IEnumerable<Feature> features, Feature feature)
@@ -142,6 +153,9 @@
     private async Task ClearData()
     {
         await grantRepo.ClearData();
+
+        ShowReferenceDataBanner = false;
+        ShowClearDataBanner = true;
     }
 
     [CascadingParameter]

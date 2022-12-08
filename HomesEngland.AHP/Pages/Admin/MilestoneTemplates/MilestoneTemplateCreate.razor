@@ -16,6 +16,8 @@
     <PageStatusContainer PageStatus="pageState" EntityName="grant milestone template">
         <MainContents>
 
+            <Paragraph>This programme has <LiteralPercentage Value="RemainingPercentage"></LiteralPercentage> of milestones percentage remaining.</Paragraph>
+
             <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
 
                 <FormSelect Id="milestoneTypeId" @bind-Value="CreateModel.MilestoneTypeId" Label="Milestone type" Items="MilestoneTypes"></FormSelect>
@@ -52,11 +54,34 @@
     [Parameter]
     public Guid ProgrammeId { get; set; }
 
-    public Programme? Programme{ get; set; }
+    public Programme? Programme { get; set; }
+
+    public decimal? CurrentProgrammeTotalPercentage { get; set; }
+
+    public decimal RemainingPercentage
+    {
+        get
+        {
+            if (CurrentProgrammeTotalPercentage.HasValue)
+            {
+                return 100 - CurrentProgrammeTotalPercentage.Value;
+            }
+
+            return 100;
+        }
+    }
+
+    public string RemainingPercentageText
+    {
+        get
+        {
+            return $"This programme has {RemainingPercentage}% left to allocate milestones to.";
+        }
+    }
 
     protected override void OnParametersSet()
     {
-         if (Programme != null)
+        if (Programme != null)
         {
             MainLayout.SetBreadcrumbs(
                 BreadcrumbItem.AdminBase()
@@ -77,6 +102,12 @@
         editContext.EnableDataAnnotationsValidation(serviceProvider);
 
         Programme = await grantRepo.GetProgramme(ProgrammeId);
+
+        var existingGrantMilestones = await grantRepo.GetGrantMilestoneTemplates(ProgrammeId);
+
+        CurrentProgrammeTotalPercentage = existingGrantMilestones
+        .Where(_ => _.Percentage.HasValue)
+        .Sum(m => m.Percentage);
 
         MilestoneTypes = (await grantRepo.GetGrantMilestoneTemplateTypes())
             .Where(_ => _.Enabled)
@@ -120,7 +151,16 @@
             customValidation?.AddErrorMessage(nameof(CreateModel.TargetNumberOfDays), "Target number of days must be a valid integer");
         }
 
-        
+        if (CurrentProgrammeTotalPercentage.HasValue && CreateModel.Percentage.HasValue)
+        {
+
+
+            if (CurrentProgrammeTotalPercentage.Value + CreateModel.Percentage.Value > 100M)
+            {
+                customValidation?.AddErrorMessage(nameof(CreateModel.Percentage), "Total percentage of milestones cannot exceed 100%");
+            }
+        }
+
         if (editContext != null && editContext.Validate())
         {
 
