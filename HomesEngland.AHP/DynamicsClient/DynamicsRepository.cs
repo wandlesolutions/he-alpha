@@ -1,6 +1,7 @@
 ﻿using BearerClient;
 using HomesEngland.AHP.Data;
 using HomesEngland.AHP.DynamicsClient.Models;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using WandleSolutions.Common.ApiClient;
 
@@ -42,9 +43,28 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<Programme?> CreateProgramme(Programme programme)
+	public async Task<Programme?> CreateProgramme(Programme programme)
 	{
-		throw new NotImplementedException();
+		// Create a new programme as FundingProgrammeEntityCreateRequest to hea_fundingprogrammes URL as POST
+
+		FundingProgrammeEntityCreateRequest createEntity = new()
+		{
+			Name = programme.ProgrammeName,
+			Start = programme.Start,
+			Finish = programme.Finish,
+		};
+
+		var createRequest = await PostAsync<NoContentResponse, FundingProgrammeEntityCreateRequest>(DynamicsEntityUrl.Programme, createEntity);
+		if (createRequest.IsSuccessful())
+		{
+			Guid? entityId = ExtractEntityKey(createRequest.Headers);
+			if (entityId.HasValue)
+			{
+				return await GetProgramme(entityId.Value);
+			}
+		}
+
+		return null;
 	}
 
 	public Task<ProgrammeFeature?> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
@@ -59,34 +79,49 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<Provider?> CreateProvider(Provider provider)
 	{
-		// Send a post request using PostAsync for a ProviderEntity to the URL accounts.
-		// Use ExtractEntityKey to get the ID of the newly created ProviderEntity.
-		// Query GetProvider using the ID to return
-
 		ProviderEntityCreateRequest createEntity = new()
 		{
 			CustomerTypeCode = 281400001,
 			Name = provider.ProviderName,
 		};
 
-
 		var createRequest = await PostAsync<NoContentResponse, ProviderEntityCreateRequest>("accounts", createEntity);
 		if (createRequest.IsSuccessful())
 		{
-			string? providerIdString = ExtractEntityKey(createRequest.Headers);
-			if (!string.IsNullOrWhiteSpace(providerIdString))
+			Guid? entityId = ExtractEntityKey(createRequest.Headers);
+			if (entityId.HasValue)
 			{
-				var providerId = Guid.Parse(providerIdString);
-				return await GetProvider(providerId);
+				return await GetProvider(entityId.Value);
 			}
 		}
 
 		return null;
 	}
 
-	public Task<Scheme?> CreateScheme(Scheme scheme)
+	public async Task<Scheme?> CreateScheme(Scheme scheme)
 	{
-		throw new NotImplementedException();
+		SchemeEntityCreateRequest createEntity = new()
+		{
+			ProgrammeId = new AssociatedEntity(scheme.ProgrammeId, DynamicsEntityUrl.Programme),
+			ProviderId = new AssociatedEntity(scheme.ProviderId, DynamicsEntityUrl.Provider),
+			SchemeName = scheme.SchemeName,
+			TotalExpenses = scheme.TotalExpensesAmount,
+			TotalGrant = scheme.TotalGrant,
+		};
+
+		var sending = JsonConvert.SerializeObject(createEntity);
+
+		var createRequest = await PostAsync<NoContentResponse, SchemeEntityCreateRequest>(DynamicsEntityUrl.Scheme, createEntity);
+		if (createRequest.IsSuccessful())
+		{
+			Guid? entityId = ExtractEntityKey(createRequest.Headers);
+			if (entityId.HasValue)
+			{
+				return await GetScheme(entityId.Value);
+			}
+		}
+
+		return null;
 	}
 
 	public Task DeleteProgrammeFeature(Guid programmeFeatureId)
@@ -148,9 +183,12 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
+	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
 	{
-		throw new NotImplementedException();
+		// TODO: filtering based on feature toggles
+		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeEntity>>("hea_fundingprogrammes");
+
+		return response.Content.Value.Select(_ => _.ToModel());
 	}
 
 	public Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
@@ -183,9 +221,11 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	}
 
-	public Task<Scheme?> GetScheme(Guid schemeId)
+	public async Task<Scheme?> GetScheme(Guid schemeId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})");
+
+		return response.Content?.ToModel();
 	}
 
 	public Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId)
@@ -193,9 +233,36 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId)
+	public async Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId}");
+
+		if (response.IsSuccessful())
+		{
+			IEnumerable<Guid> programmeIds = response.Content.Value.Select(_ => _.ProgrammeId).Distinct();
+
+			var programmes = await GetProgrammes(programmeIds);
+			return response.Content?.Value?.Select(_ => _.ToModel(programmes));
+
+		}
+
+		return Enumerable.Empty<Scheme>();
+	}
+
+	public async Task<IDictionary<Guid, Programme>> GetProgrammes(IEnumerable<Guid> programmeIds)
+	{
+		Dictionary<Guid, Programme> results = new();
+
+		foreach (Guid programmeId in programmeIds)
+		{
+			var programme = await GetProgramme(programmeId);
+			if (programme != null)
+			{
+				results.Add(programmeId, programme);
+			}
+		}
+
+		return results;
 	}
 
 	public Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate)
@@ -203,7 +270,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public static string? ExtractEntityKey(HttpHeaders? headers)
+	public static Guid? ExtractEntityKey(HttpHeaders? headers)
 	{
 		// Extract last GUID from OData-EntityId key in headers and return without surrounding ()
 		if (headers == null)
@@ -221,7 +288,8 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 				// Check there is a (  within the string and last character in string is ), if so, substring from the first ( in the string and  remove last character
 				if (fromLastForwardSlash.Contains('(') && fromLastForwardSlash.Last() == ')')
 				{
-					return fromLastForwardSlash.Substring(fromLastForwardSlash.IndexOf('(') + 1).TrimEnd(')');
+					string entityId = fromLastForwardSlash.Substring(fromLastForwardSlash.IndexOf('(') + 1).TrimEnd(')');
+					return Guid.Parse(entityId);
 				}
 			}
 		}

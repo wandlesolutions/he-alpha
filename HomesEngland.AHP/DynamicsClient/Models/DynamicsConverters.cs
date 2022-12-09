@@ -23,4 +23,47 @@ public static class DynamicsConverters
 			ProviderName = provider.Name
 		};
 	}
+
+	// Convert from SchemeEntity to Scheme extension method
+	public static Scheme ToModel(this SchemeEntity scheme)
+	{
+		decimal total = 0;
+		if (scheme.TotalExpenses.HasValue)
+		{
+			total = scheme.TotalExpenses.Value;
+		}
+
+		if (scheme.TotalGrant.HasValue)
+		{
+			total += scheme.TotalGrant.Value;
+		}
+
+		return new Scheme()
+		{
+			ProgrammeId = scheme.ProgrammeId,
+			ProviderId = scheme.ProviderId,
+			SchemeId = scheme.SchemeId,
+			SchemeName = scheme.SchemeName,
+			TotalExpensesAmount = scheme.TotalExpenses,
+			TotalGrant = scheme.TotalGrant,
+			TotalAmount = total,
+		};
+	}
+
+	public static Scheme ToModel(this SchemeEntity scheme, IDictionary<Guid, Programme>? programmes)
+	{
+		Scheme result = scheme.ToModel();
+
+		if (programmes != null && programmes.TryGetValue(scheme.ProgrammeId, out Programme? programme))
+		{
+			if (programme != null)
+			{
+				result.Programme = programme;
+			}
+		}
+
+		return result;
+	}
+
+
 }
