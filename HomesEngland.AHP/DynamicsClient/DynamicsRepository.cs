@@ -1,6 +1,7 @@
 ﻿using BearerClient;
 using HomesEngland.AHP.Data;
 using HomesEngland.AHP.DynamicsClient.Models;
+using System.Net.Http.Headers;
 using WandleSolutions.Common.ApiClient;
 
 namespace HomesEngland.AHP.DynamicsClient;
@@ -16,12 +17,12 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<Feature> CreateFeature(Feature feature)
+	public Task<Feature?> CreateFeature(Feature feature)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<FinancialYear> CreateFinancialYear(FinancialYear feature)
+	public Task<FinancialYear?> CreateFinancialYear(FinancialYear feature)
 	{
 		throw new NotImplementedException();
 	}
@@ -31,37 +32,59 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
+	public Task<GrantMilestoneTemplate?> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType)
+	public Task<MilestoneType?> CreateMilestoneType(MilestoneType milestoneType)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<Programme> CreateProgramme(Programme programme)
+	public Task<Programme?> CreateProgramme(Programme programme)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
+	public Task<ProgrammeFeature?> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<Property> CreateProperty(Property property)
+	public Task<Property?> CreateProperty(Property property)
 	{
 		throw new NotImplementedException();
 	}
 
-	public Task<Provider> CreateProvider(Provider provider)
+	public async Task<Provider?> CreateProvider(Provider provider)
 	{
-		throw new NotImplementedException();
+		// Send a post request using PostAsync for a ProviderEntity to the URL accounts.
+		// Use ExtractEntityKey to get the ID of the newly created ProviderEntity.
+		// Query GetProvider using the ID to return
+
+		ProviderEntityCreateRequest createEntity = new()
+		{
+			CustomerTypeCode = 281400001,
+			Name = provider.ProviderName,
+		};
+
+
+		var createRequest = await PostAsync<NoContentResponse, ProviderEntityCreateRequest>("accounts", createEntity);
+		if (createRequest.IsSuccessful())
+		{
+			string? providerIdString = ExtractEntityKey(createRequest.Headers);
+			if (!string.IsNullOrWhiteSpace(providerIdString))
+			{
+				var providerId = Guid.Parse(providerIdString);
+				return await GetProvider(providerId);
+			}
+		}
+
+		return null;
 	}
 
-	public Task<Scheme> CreateScheme(Scheme scheme)
+	public Task<Scheme?> CreateScheme(Scheme scheme)
 	{
 		throw new NotImplementedException();
 	}
@@ -178,5 +201,31 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 	public Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate)
 	{
 		throw new NotImplementedException();
+	}
+
+	public static string? ExtractEntityKey(HttpHeaders? headers)
+	{
+		// Extract last GUID from OData-EntityId key in headers and return without surrounding ()
+		if (headers == null)
+		{
+			return null;
+		}
+
+		if (headers.TryGetValues("OData-EntityId", out var values))
+		{
+			if (values.Count() == 1)
+			{
+				string value = values.First();
+				string fromLastForwardSlash = value.Substring(value.LastIndexOf('/') + 1);
+
+				// Check there is a (  within the string and last character in string is ), if so, substring from the first ( in the string and  remove last character
+				if (fromLastForwardSlash.Contains('(') && fromLastForwardSlash.Last() == ')')
+				{
+					return fromLastForwardSlash.Substring(fromLastForwardSlash.IndexOf('(') + 1).TrimEnd(')');
+				}
+			}
+		}
+
+		return null;
 	}
 }

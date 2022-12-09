@@ -16,7 +16,7 @@ public class SqlGrantRepository : IGrantRepository
 		return _factory.CreateDbContext();
 	}
 
-	public async Task<Feature> CreateFeature(Feature feature)
+	public async Task<Feature?> CreateFeature(Feature feature)
 	{
 		using var context = GetContext();
 
@@ -25,7 +25,7 @@ public class SqlGrantRepository : IGrantRepository
 		return feature;
 	}
 
-	public async Task<FinancialYear> CreateFinancialYear(FinancialYear feature)
+	public async Task<FinancialYear?> CreateFinancialYear(FinancialYear feature)
 	{
 		using var context = GetContext();
 
@@ -42,7 +42,7 @@ public class SqlGrantRepository : IGrantRepository
 		await context.SaveChangesAsync();
 	}
 
-	public async Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
+	public async Task<GrantMilestoneTemplate?> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
 	{
 		using var context = GetContext();
 
@@ -51,7 +51,7 @@ public class SqlGrantRepository : IGrantRepository
 		return feature;
 	}
 
-	public async Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType)
+	public async Task<MilestoneType?> CreateMilestoneType(MilestoneType milestoneType)
 	{
 		using var context = GetContext();
 
@@ -60,7 +60,7 @@ public class SqlGrantRepository : IGrantRepository
 		return milestoneType;
 	}
 
-	public async Task<Programme> CreateProgramme(Programme programme)
+	public async Task<Programme?> CreateProgramme(Programme programme)
 	{
 		using var context = GetContext();
 
@@ -69,7 +69,7 @@ public class SqlGrantRepository : IGrantRepository
 		return programme;
 	}
 
-	public async Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
+	public async Task<ProgrammeFeature?> CreateProgrammeFeature(ProgrammeFeature programmeFeature)
 	{
 		using var context = GetContext();
 
@@ -78,7 +78,7 @@ public class SqlGrantRepository : IGrantRepository
 		return programmeFeature;
 	}
 
-	public async Task<Property> CreateProperty(Property property)
+	public async Task<Property?> CreateProperty(Property property)
 	{
 		using var context = GetContext();
 
@@ -87,7 +87,7 @@ public class SqlGrantRepository : IGrantRepository
 		return property;
 	}
 
-	public async Task<Provider> CreateProvider(Provider provider)
+	public async Task<Provider?> CreateProvider(Provider provider)
 	{
 		using var context = GetContext();
 
@@ -96,7 +96,7 @@ public class SqlGrantRepository : IGrantRepository
 		return provider;
 	}
 
-	public async Task<Scheme> CreateScheme(Scheme scheme)
+	public async Task<Scheme?> CreateScheme(Scheme scheme)
 	{
 		using var context = GetContext();
 

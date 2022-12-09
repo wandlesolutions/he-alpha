@@ -4,15 +4,15 @@ public interface IGrantRepository
 {
 
 	Task ClearData();
-	Task<Feature> CreateFeature(Feature feature);
-	Task<FinancialYear> CreateFinancialYear(FinancialYear feature);
-	Task<GrantMilestoneTemplate> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature);
-	Task<MilestoneType> CreateMilestoneType(MilestoneType milestoneType);
-	Task<Programme> CreateProgramme(Programme programme);
-	Task<ProgrammeFeature> CreateProgrammeFeature(ProgrammeFeature programmeFeature);
-	Task<Property> CreateProperty(Property property);
-	Task<Provider> CreateProvider(Provider provider);
-	Task<Scheme> CreateScheme(Scheme scheme);
+	Task<Feature?> CreateFeature(Feature feature);
+	Task<FinancialYear?> CreateFinancialYear(FinancialYear feature);
+	Task<GrantMilestoneTemplate?> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature);
+	Task<MilestoneType?> CreateMilestoneType(MilestoneType milestoneType);
+	Task<Programme?> CreateProgramme(Programme programme);
+	Task<ProgrammeFeature?> CreateProgrammeFeature(ProgrammeFeature programmeFeature);
+	Task<Property?> CreateProperty(Property property);
+	Task<Provider?> CreateProvider(Provider provider);
+	Task<Scheme?> CreateScheme(Scheme scheme);
 
 	Task DeleteProgrammeFeature(Guid programmeFeatureId);
 	Task<IEnumerable<Programme>> GetProgrammes();
