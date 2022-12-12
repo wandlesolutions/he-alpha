@@ -5,7 +5,7 @@ namespace HomesEngland.AHP.DynamicsClient.Models;
 public record SchemeEntityCreateRequest
 {
 	[JsonProperty("hea_name")]
-	public string SchemeName { get; set; }
+	public required string SchemeName { get; set; }
 
 	[JsonProperty("hea_totalexpenseslimit")]
 	public decimal? TotalExpenses { get; set; }
@@ -13,9 +13,9 @@ public record SchemeEntityCreateRequest
 	[JsonProperty("hea_totalgrant")]
 	public decimal? TotalGrant { get; set; }
 
-	[JsonProperty("hea_schemeprovider@odata.bind")]
-	public AssociatedEntity ProviderId { get; set; }
+	[JsonProperty("hea_SchemeProvider_account@odata.bind")]
+	public required AssociatedEntity ProviderId { get; set; }
 
-	[JsonProperty("hea_fundingprogramme@odata.bind")]
-	public AssociatedEntity ProgrammeId { get; set; }
+	[JsonProperty("hea_FundingProgramme@odata.bind")]
+	public required AssociatedEntity ProgrammeId { get; set; }
 }

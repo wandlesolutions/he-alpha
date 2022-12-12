@@ -146,12 +146,12 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
 	{
-		throw new NotImplementedException();
+		return Task.FromResult(Enumerable.Empty<GrantMilestone>());
 	}
 
 	public Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
 	{
-		throw new NotImplementedException();
+		return Task.FromResult(Enumerable.Empty<GrantMilestoneTemplate>());
 	}
 
 	public Task<IEnumerable<MilestoneType>> GetGrantMilestoneTemplateTypes()
@@ -161,7 +161,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<Programme?> GetProgramme(Guid programmeId)
 	{
-		var response = await GetAsync<FundingProgrammeEntity>($"hea_fundingprogrammes({programmeId})");
+		var response = await GetAsync<FundingProgrammeEntity>($"hea_fundingprogrammes({programmeId})?$select={FundingProgrammeEntity.QueryFields}");
 
 		return response.Content?.ToModel();
 	}
@@ -173,7 +173,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<IEnumerable<Programme>> GetProgrammes()
 	{
-		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeEntity>>("hea_fundingprogrammes");
+		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeEntity>>($"hea_fundingprogrammes?$select={FundingProgrammeEntity.QueryFields}");
 
 		return response.Content.Value.Select(_ => _.ToModel());
 	}
@@ -223,7 +223,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<Scheme?> GetScheme(Guid schemeId)
 	{
-		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})");
+		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})?$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields})");
 
 		return response.Content?.ToModel();
 	}

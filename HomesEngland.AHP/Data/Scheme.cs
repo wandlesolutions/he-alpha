@@ -20,7 +20,7 @@ public class Scheme
 	[Required]
 	public Guid ProgrammeId { get; set; }
 
-	public Programme Programme { get; set; }
+	public Programme? Programme { get; set; }
 
 	public ICollection<Property>? Properties { get; set; }
 

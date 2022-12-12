@@ -21,4 +21,7 @@ public record SchemeEntity
 
 	[JsonProperty("_hea_fundingprogramme_value")]
 	public Guid ProgrammeId { get; set; }
+
+	[JsonProperty("hea_FundingProgramme")]
+	public FundingProgrammeEntity? FundingProgramme { get; set; }
 }

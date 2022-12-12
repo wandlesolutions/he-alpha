@@ -47,6 +47,7 @@ public static class DynamicsConverters
 			TotalExpensesAmount = scheme.TotalExpenses,
 			TotalGrant = scheme.TotalGrant,
 			TotalAmount = total,
+			Programme = scheme.FundingProgramme?.ToModel(),
 		};
 	}
 
