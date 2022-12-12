@@ -25,6 +25,7 @@ public interface IGrantRepository
 	Task<IEnumerable<Feature>> GetFeatures();
 	Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId);
 	Task<IEnumerable<MilestoneType>> GetGrantMilestoneTemplateTypes();
+	Task<IEnumerable<LocalAuthority>> GetLocalAuthorities();
 
 	Task<IEnumerable<ProgrammeFeature>> GetProgrammeFeatures(Guid programmeId);
 

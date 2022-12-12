@@ -39,4 +39,8 @@ public class Scheme
 	public bool Complete { get; set; }
 
 	public DateTimeOffset? Completed { get; set; }
+
+	public Guid? LocalAuthorityId { get; set; }
+
+	public LocalAuthority? LocalAuthority { get; set; }
 }

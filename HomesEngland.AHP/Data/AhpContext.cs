@@ -29,6 +29,7 @@ public class AhpContext : DbContext
 	public DbSet<FinancialYear> FinancialYears { get; set; }
 	public DbSet<PaymentRequest> PaymentRequests { get; set; }
 
+	public DbSet<LocalAuthority> LocalAuthorities { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -37,5 +38,6 @@ public class AhpContext : DbContext
 		modelBuilder.Entity<ProgrammeFeature>().ToTable("ProgrammeFeatures");
 		modelBuilder.Entity<Scheme>().ToTable("Schemes");
 		modelBuilder.Entity<Property>().ToTable("Properties");
+		modelBuilder.Entity<LocalAuthority>().ToTable("LocalAuthorities");
 	}
 }

@@ -329,4 +329,13 @@ public class SqlGrantRepository : IGrantRepository
 			.Include(_ => _.Programme)
 			.SingleOrDefaultAsync(_ => _.SchemeId == schemeId);
 	}
+
+	public async Task<IEnumerable<LocalAuthority>> GetLocalAuthorities()
+	{
+		using var context = GetContext();
+
+		return await context.LocalAuthorities
+			.OrderBy(_ => _.LocalAuthorityName)
+			.ToListAsync();
+	}
 }

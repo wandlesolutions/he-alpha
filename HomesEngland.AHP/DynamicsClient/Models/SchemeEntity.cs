@@ -24,4 +24,7 @@ public record SchemeEntity
 
 	[JsonProperty("hea_FundingProgramme")]
 	public FundingProgrammeEntity? FundingProgramme { get; set; }
+
+	[JsonProperty("hea_LocalAuthority")]
+	public LocalAuthorityEntity? LocalAuthority { get; set; }
 }

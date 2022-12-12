@@ -223,7 +223,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<Scheme?> GetScheme(Guid schemeId)
 	{
-		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})?$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields})");
+		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})?$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})");
 
 		return response.Content?.ToModel();
 	}
@@ -295,5 +295,12 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		}
 
 		return null;
+	}
+
+	public async Task<IEnumerable<LocalAuthority>> GetLocalAuthorities()
+	{
+		var response = await GetAsync<DynamicsReponseWrapper<LocalAuthorityEntity>>("accounts?$filter=customertypecode eq 281400000&$select=name,accountid");
+
+		return response.Content.Value?.Select(_ => _.ToModel());
 	}
 }

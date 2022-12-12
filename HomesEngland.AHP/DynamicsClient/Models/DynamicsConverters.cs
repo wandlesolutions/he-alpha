@@ -66,5 +66,13 @@ public static class DynamicsConverters
 		return result;
 	}
 
-
+	// Convert LocalAuthorityEntity to LocalAuthority
+	public static LocalAuthority ToModel(this LocalAuthorityEntity localAuthority)
+	{
+		return new LocalAuthority()
+		{
+			LocalAuthorityId = localAuthority.LocalAuthorityId,
+			LocalAuthorityName = localAuthority.LocalAuthorityName,
+		};
+	}
 }
