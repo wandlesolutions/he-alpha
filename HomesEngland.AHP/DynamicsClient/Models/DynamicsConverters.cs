@@ -48,6 +48,7 @@ public static class DynamicsConverters
 			TotalGrant = scheme.TotalGrant,
 			TotalAmount = total,
 			Programme = scheme.FundingProgramme?.ToModel(),
+			LocalAuthority = scheme.LocalAuthority?.ToModel(),
 		};
 	}
 

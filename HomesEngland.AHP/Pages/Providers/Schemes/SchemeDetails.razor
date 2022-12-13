@@ -18,10 +18,22 @@
 {
     <DataList>
         <DataRow>
-            <DataTerm>Programme</DataTerm>
+            <DataTerm>Programme:</DataTerm>
             <DataDefinition>@Scheme.Programme.ProgrammeName</DataDefinition>
         </DataRow>
-
+         <DataRow>
+            <DataTerm>Local Authority:</DataTerm>
+            <DataDefinition>
+                @if(Scheme.LocalAuthority != null && !string.IsNullOrWhiteSpace(Scheme.LocalAuthority.LocalAuthorityName))
+                {
+                    @Scheme.LocalAuthority.LocalAuthorityName
+                }
+                else
+                {
+                    <text>Not set</text>
+                }
+                </DataDefinition>
+        </DataRow>
 
         <DataRow>
             <DataTerm>Grant amount:</DataTerm>
