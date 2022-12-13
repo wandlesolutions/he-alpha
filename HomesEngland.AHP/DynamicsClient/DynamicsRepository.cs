@@ -183,9 +183,9 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return response.Content.Value.Select(_ => _.ToModel());
 	}
 
-	public Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId)
+	public async Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId)
 	{
-		throw new NotImplementedException();
+		return Enumerable.Empty<Programme>();
 	}
 
 	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
@@ -196,9 +196,9 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return response.Content.Value.Select(_ => _.ToModel());
 	}
 
-	public Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
+	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
 	{
-		throw new NotImplementedException();
+		return Enumerable.Empty<Property>();
 	}
 
 	public Task<Property?> GetProperty(Guid propertyId)

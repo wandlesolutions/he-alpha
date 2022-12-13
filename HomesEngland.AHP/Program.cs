@@ -10,13 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
-
-builder.Services.AddDbContextFactory<AhpContext>(options =>
-{
-	string connectionString = builder.Configuration.GetConnectionString("AhpContext");
-	options.UseSqlServer(connectionString);
-});
 
 string? repository = builder.Configuration["Repository"];
 
@@ -60,6 +53,12 @@ if (repository == "dynamics")
 }
 else
 {
+	builder.Services.AddDbContextFactory<AhpContext>(options =>
+	{
+		string connectionString = builder.Configuration.GetConnectionString("AhpContext");
+		options.UseSqlServer(connectionString);
+	});
+
 	builder.Services.AddScoped<IGrantRepository, SqlGrantRepository>();
 
 	builder.Services.AddDatabaseDeveloperPageExceptionFilter();

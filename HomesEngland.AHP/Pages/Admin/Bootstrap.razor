@@ -33,17 +33,10 @@
 
     private async Task PopulateReferenceData()
     {
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //	var services = scope.ServiceProvider;
-
-        //	var context = services.GetRequiredService<AhpContext>();
-        ctx.Database.EnsureCreated();
+       
+       // ctx.Database.EnsureCreated();
 
         ctx.Database.Migrate();
-
-        //DbInitializer.Initialize(ctx);
-        //}
 
         var features = await grantRepo.GetFeatures();
 
