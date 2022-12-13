@@ -109,6 +109,11 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 			TotalGrant = scheme.TotalGrant,
 		};
 
+		if (scheme.LocalAuthorityId.HasValue)
+		{
+			createEntity.LocalAuthorityId = new AssociatedEntity(scheme.LocalAuthorityId.Value, DynamicsEntityUrl.LocalAuthority);
+		}
+
 		var sending = JsonConvert.SerializeObject(createEntity);
 
 		var createRequest = await PostAsync<NoContentResponse, SchemeEntityCreateRequest>(DynamicsEntityUrl.Scheme, createEntity);

@@ -6,4 +6,5 @@ public class DynamicsEntityUrl
 
 	public static string Programme = "hea_fundingprogrammes";
 	public static string Provider = "accounts";
+	public static string LocalAuthority = "accounts";
 }

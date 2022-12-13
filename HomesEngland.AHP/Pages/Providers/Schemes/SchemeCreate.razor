@@ -23,6 +23,7 @@
                 <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                     <FormInputText Id="schemeName" @bind-Value="CreateModel.SchemeName" Label="Scheme name" Width="TextboxWidth.OneHalf"></FormInputText>
                     <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes" NoItemsText="There are no programmes enabled to your to create new schemes in"></FormSelect>
+                    <FormSelect Id="localAuthorityId" @bind-Value="CreateModel.LocalAuthorityId" Label="Local authority" Items="LocalAuthorities" NoItemsText="There are no local authorities associate with this scheme"></FormSelect>
                     <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
                     <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Expenses amount"></FormInputMoney>
                     
@@ -50,6 +51,7 @@
     private CustomValidation? customValidation;
 
     private SelectListItem[]? Programmes { get; set; }
+    private SelectListItem[]? LocalAuthorities { get; set; }
 
     private PageStatus pageState { get; set; } = PageStatus.Loading;
 
@@ -63,6 +65,10 @@
         Provider = await grantRepo.GetProvider(ProviderId);
         Programmes = (await grantRepo.GetProgrammesWithProviderSchemeCreationEnabled())
         .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
+                .ToArray();
+
+        LocalAuthorities = (await grantRepo.GetLocalAuthorities())
+        .Select(p => new SelectListItem(p.LocalAuthorityName, p.LocalAuthorityId.ToString()))
                 .ToArray();
 
         pageState = PageStatus.Visible;
@@ -105,6 +111,11 @@
                     TotalExpensesAmount = CreateModel.ExpensesAmount,
                     TotalAmount = totalAmount,
                 };
+
+            if (!string.IsNullOrWhiteSpace(CreateModel.LocalAuthorityId))
+            {
+                scheme.LocalAuthorityId = new Guid(CreateModel.LocalAuthorityId);
+            }
 
             Scheme result = await grantRepo.CreateScheme(scheme);
 

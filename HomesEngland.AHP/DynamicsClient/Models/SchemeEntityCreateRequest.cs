@@ -18,4 +18,7 @@ public record SchemeEntityCreateRequest
 
 	[JsonProperty("hea_FundingProgramme@odata.bind")]
 	public required AssociatedEntity ProgrammeId { get; set; }
+
+	[JsonProperty("hea_LocalAuthority@odata.bind")]
+	public AssociatedEntity? LocalAuthorityId { get; set; }
 }

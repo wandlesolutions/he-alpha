@@ -10,6 +10,8 @@ public class SchemeCreateFormModel
 	[Required]
 	public string? ProgrammeId { get; set; }
 
+	public string? LocalAuthorityId { get; set; }
+
 	[Required, Range(0, double.MaxValue)]
 	public decimal? GrantAmount { get; set; }
 
