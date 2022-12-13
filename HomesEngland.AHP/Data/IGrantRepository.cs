@@ -17,7 +17,7 @@ public interface IGrantRepository
 	Task DeleteProgrammeFeature(Guid programmeFeatureId);
 	Task<IEnumerable<Programme>> GetProgrammes();
 	Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId);
-	Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled();
+	Task<IEnumerable<KeyValue>> GetProgrammesWithProviderSchemeCreationEnabled();
 	Task<IEnumerable<Provider>> GetProviders();
 	Task<Programme?> GetProgramme(Guid programmeId);
 	Task<Provider?> GetProvider(Guid providerId);

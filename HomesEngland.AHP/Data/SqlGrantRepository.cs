@@ -204,7 +204,7 @@ public class SqlGrantRepository : IGrantRepository
 			.ToListAsync();
 	}
 
-	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
+	public async Task<IEnumerable<KeyValue>> GetProgrammesWithProviderSchemeCreationEnabled()
 	{
 		using var context = GetContext();
 
@@ -214,6 +214,11 @@ public class SqlGrantRepository : IGrantRepository
 			.Select(_ => _.Programme)
 			.Distinct()
 			.OrderBy(_ => _.ProgrammeName)
+			.Select(_ => new KeyValue()
+			{
+				Key = _.ProgrammeId,
+				Value = _.ProgrammeName
+			})
 			.ToListAsync();
 	}
 

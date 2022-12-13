@@ -188,12 +188,16 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return Enumerable.Empty<Programme>();
 	}
 
-	public async Task<IEnumerable<Programme>> GetProgrammesWithProviderSchemeCreationEnabled()
+	public async Task<IEnumerable<KeyValue>> GetProgrammesWithProviderSchemeCreationEnabled()
 	{
 		// TODO: filtering based on feature toggles
-		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeEntity>>("hea_fundingprogrammes");
+		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeKeyValueEntity>>($"hea_fundingprogrammes?$filter=Microsoft.Dynamics.CRM.ContainValues(PropertyName='hea_programmefeatures',PropertyValues=%5B'{FeatureToggleChoiceIds.ProviderCanCreateSchemes}'%5D)&$select={FundingProgrammeKeyValueEntity.QueryFields}");
 
-		return response.Content.Value.Select(_ => _.ToModel());
+		return response.Content.Value.Select(_ => new KeyValue()
+		{
+			Key = _.FundingProgrammeId,
+			Value = _.Name,
+		});
 	}
 
 	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)

@@ -64,7 +64,7 @@
 
         Provider = await grantRepo.GetProvider(ProviderId);
         Programmes = (await grantRepo.GetProgrammesWithProviderSchemeCreationEnabled())
-        .Select(p => new SelectListItem(p.ProgrammeName, p.ProgrammeId.ToString()))
+        .Select(p => new SelectListItem(p.Value, p.Key.ToString()))
                 .ToArray();
 
         LocalAuthorities = (await grantRepo.GetLocalAuthorities())
