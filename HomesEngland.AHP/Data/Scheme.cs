@@ -9,13 +9,13 @@ public class Scheme
 	[Required, Key]
 	public Guid SchemeId { get; set; }
 
-	[Required, StringLength(64)]
-	public string SchemeName { get; set; }
+	[Required, StringLength(200)]
+	public required string SchemeName { get; set; }
 
 	[Required]
 	public Guid ProviderId { get; set; }
 
-	public Provider Provider { get; set; }
+	public Provider? Provider { get; set; }
 
 	[Required]
 	public Guid ProgrammeId { get; set; }

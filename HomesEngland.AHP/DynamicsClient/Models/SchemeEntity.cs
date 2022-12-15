@@ -4,6 +4,8 @@ namespace HomesEngland.AHP.DynamicsClient.Models;
 
 public record SchemeEntity
 {
+	public const string QueryFields = "hea_programmeschemeid,hea_name,hea_totalexpenseslimit,hea_totalgrant,_hea_schemeprovider_value,_hea_fundingprogramme_value";
+
 	[JsonProperty("hea_programmeschemeid")]
 	public Guid SchemeId { get; set; }
 

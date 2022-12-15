@@ -1,6 +1,7 @@
 ﻿using HomesEngland.AHP.Data;
+using HomesEngland.AHP.DynamicsClient.Models;
 
-namespace HomesEngland.AHP.DynamicsClient.Models;
+namespace HomesEngland.AHP.DynamicsClient;
 
 public static class DynamicsConverters
 {
@@ -74,6 +75,25 @@ public static class DynamicsConverters
 		{
 			LocalAuthorityId = localAuthority.LocalAuthorityId,
 			LocalAuthorityName = localAuthority.LocalAuthorityName,
+		};
+	}
+
+	// Convert PropertyEntity to Property
+	public static Property ToModel(this PropertyEntity propertyEntity)
+	{
+		return new Property()
+		{
+			Address1 = propertyEntity.Address1,
+			Address2 = propertyEntity.Address2,
+			ExpensesAmount = propertyEntity.ExpensesAmount,
+			GrantAmount = propertyEntity.GrantAmount,
+			LocalAuthority = propertyEntity?.LocalAuthority?.LocalAuthorityName,
+			Postcode = propertyEntity.Postcode,
+			PropertyId = propertyEntity.PropertyId,
+			PropertyName = propertyEntity.PropertyName,
+			SchemeId = propertyEntity.SchemeId,
+			TotalAmount = propertyEntity.TotalAmount,
+			Scheme = propertyEntity?.Scheme?.ToModel(),
 		};
 	}
 }

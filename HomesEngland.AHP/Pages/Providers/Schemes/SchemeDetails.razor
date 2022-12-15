@@ -8,11 +8,12 @@
 {
     <Caption CaptionSize="CaptionSize.Large">@Scheme.SchemeName</Caption>
 }
-<PageHeadingActionLinkContainer Heading="Scheme Details">
+<PageHeading>Scheme details</PageHeading>
+@*<PageHeadingActionLinkContainer Heading="Scheme Details">
     <ActionLinks>
         <ActionLink Href="@($"/providers/byid/{ProviderId}/schemes/expenses/create")">Claim expense</ActionLink>
     </ActionLinks>
-</PageHeadingActionLinkContainer>
+</PageHeadingActionLinkContainer>*@
 
 @if (Scheme != null)
 {
@@ -50,7 +51,7 @@
         </DataRow>
 
         <DataRow>
-            <DataTerm>Expenses amount:</DataTerm>
+            <DataTerm>Revenue funding amount:</DataTerm>
             <DataDefinition>
 
                 @if (Scheme.TotalExpensesAmount.HasValue)

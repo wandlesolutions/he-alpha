@@ -4,7 +4,7 @@ namespace HomesEngland.AHP.Pages.Providers.Schemes;
 
 public class SchemeCreateFormModel
 {
-	[Required, StringLength(64)]
+	[Required, StringLength(200)]
 	public string? SchemeName { get; set; }
 
 	[Required]

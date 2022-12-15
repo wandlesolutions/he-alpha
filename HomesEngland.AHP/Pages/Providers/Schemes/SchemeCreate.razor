@@ -25,7 +25,7 @@
                     <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes" NoItemsText="There are no programmes enabled to your to create new schemes in"></FormSelect>
                     <FormSelect Id="localAuthorityId" @bind-Value="CreateModel.LocalAuthorityId" Label="Local authority" Items="LocalAuthorities" NoItemsText="There are no local authorities associate with this scheme"></FormSelect>
                     <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
-                    <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Expenses amount"></FormInputMoney>
+                    <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Revenue amount"></FormInputMoney>
                     
                     <CustomValidation @ref="customValidation"></CustomValidation>
 

@@ -15,7 +15,7 @@ public class Property
 	[Required]
 	public Guid SchemeId { get; set; }
 
-	public Scheme Scheme { get; set; }
+	public Scheme? Scheme { get; set; }
 
 	[StringLength(64)]
 	public string? Address1 { get; set; }

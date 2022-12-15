@@ -1,7 +1,6 @@
 ﻿using BearerClient;
 using HomesEngland.AHP.Data;
 using HomesEngland.AHP.DynamicsClient.Models;
-using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using WandleSolutions.Common.ApiClient;
 
@@ -114,8 +113,6 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 			createEntity.LocalAuthorityId = new AssociatedEntity(scheme.LocalAuthorityId.Value, DynamicsEntityUrl.LocalAuthority);
 		}
 
-		var sending = JsonConvert.SerializeObject(createEntity);
-
 		var createRequest = await PostAsync<NoContentResponse, SchemeEntityCreateRequest>(DynamicsEntityUrl.Scheme, createEntity);
 		if (createRequest.IsSuccessful())
 		{
@@ -134,7 +131,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<IEnumerable<Feature>> GetFeatures()
+	public async Task<IEnumerable<Feature>> GetFeatures()
 	{
 		throw new NotImplementedException();
 	}
@@ -202,7 +199,33 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
 	{
-		return Enumerable.Empty<Property>();
+		var response = await GetAsync<DynamicsReponseWrapper<PropertyEntity>>($"hea_schemeproperties?$select={PropertyEntity.QueryFields}&$expand=hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields}),hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+
+		IEnumerable<Guid> programmeIds = response.Content.Value.Select(_ => _.Scheme?.ProgrammeId)
+			.Where(_ => _.HasValue)
+			.Select(_ => _.Value)
+			.Distinct();
+
+		var programmes = await GetProgrammes(programmeIds);
+
+
+		List<Property> properties = response.Content.Value?.Select(_ => _.ToModel()).ToList();
+		// Set programme on each property based on scheme.ProgrammeId
+		foreach (Property property in properties)
+		{
+			if (property.Scheme == null)
+			{
+				continue;
+			}
+
+			if (programmes.TryGetValue(property.Scheme.ProgrammeId, out Programme? programme))
+			{
+				property.Scheme.Programme = programme;
+
+			}
+		}
+
+		return properties;
 	}
 
 	public Task<Property?> GetProperty(Guid propertyId)
@@ -210,7 +233,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)
+	public async Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)
 	{
 		throw new NotImplementedException();
 	}
