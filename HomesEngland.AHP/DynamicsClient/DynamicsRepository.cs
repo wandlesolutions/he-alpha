@@ -146,9 +146,12 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
+	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
 	{
-		return Task.FromResult(Enumerable.Empty<GrantMilestone>());
+		var response = await GetAsync<DynamicsReponseWrapper<GrantMilestoneEntity>>($"hea_schememilestones?$filter=_hea_programmescheme_value eq {schemeId}&$select={GrantMilestoneEntity.QueryFields}&$expand=hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+
+		return response.Content.Value.Select(_ => _.ToModel());
+		// hea_schememilestones?$filter=_hea_programmescheme_value eq a0a0c8cc-867c-ed11-81ad-00224841beb0&$select=hea_schememilestoneid,_hea_programmescheme_value,hea_completed,hea_completeddate,hea_grantpercentageawarded,hea_targetdate,hea_milestonetype&$expand=hea_ProgrammeScheme
 	}
 
 	public Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)

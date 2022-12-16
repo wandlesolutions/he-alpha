@@ -96,4 +96,23 @@ public static class DynamicsConverters
 			Scheme = propertyEntity?.Scheme?.ToModel(),
 		};
 	}
+
+	// Convert GrantMilestoneEntity to GrantMilestone
+	public static GrantMilestone ToModel(this GrantMilestoneEntity grantMilestoneEntity)
+	{
+		return new GrantMilestone()
+		{
+			Completed = grantMilestoneEntity.Completed,
+			CompletionDate = grantMilestoneEntity.CompletionDate,
+			GrantAmount = grantMilestoneEntity.GrantAmount,
+			GrantMilestoneId = grantMilestoneEntity.GrantMilestoneId,
+			MilestoneType = new MilestoneType()
+			{
+				MilestoneTypeName = grantMilestoneEntity.MilestoneTypeName,
+			},
+			SchemeId = grantMilestoneEntity.SchemeId,
+			Scheme = grantMilestoneEntity.Scheme?.ToModel(),
+			TargetDate = grantMilestoneEntity.TargetDate,
+		};
+	}
 }

@@ -12,7 +12,7 @@ public class GrantMilestone
 	[Required]
 	public Guid SchemeId { get; set; }
 
-	public Scheme Scheme { get; set; }
+	public Scheme? Scheme { get; set; }
 
 	public DateTimeOffset TargetDate { get; set; }
 
