@@ -107,8 +107,13 @@
         <Inset>No grant milestones have been created against this scheme</Inset>
     }
 
-    <Heading Size="HeadingSize.Medium">Expenses</Heading>
-    <Inset>No expenses have been claimed against this property</Inset>
+    @if(Scheme.TotalExpensesAmount > 0)
+    {
+        <Heading Size="HeadingSize.Medium">Revenue funding</Heading>
+        <Inset>No revenue funding claims have been assigned to this scheme</Inset>
+    }
+
+   
 }
 else
 {

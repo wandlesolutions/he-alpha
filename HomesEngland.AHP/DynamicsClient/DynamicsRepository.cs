@@ -177,6 +177,17 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 			customHeaders: PreferHeaders
 			);
 
+		if (!response.IsSuccessful())
+		{
+			throw new InvalidOperationException($"Failed to retrieve grant milestones. {response.StatusCode}, {response?.Content}");
+		}
+
+		if (response.Content == null
+			|| response.Content.Value == null)
+		{
+			return Enumerable.Empty<GrantMilestone>();
+		}
+
 		return response.Content.Value.Select(_ => _.ToModel());
 	}
 
