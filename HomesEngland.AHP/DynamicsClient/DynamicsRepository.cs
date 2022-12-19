@@ -8,6 +8,9 @@ namespace HomesEngland.AHP.DynamicsClient;
 
 public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 {
+	private readonly static string[] PreferHeaders = new string[] { "Prefer", "odata.include-annotations=*" };
+
+
 	public DynamicsRepository(IHttpClientFactory httpClientFactory, string configurationKey, IBearerTokenProvider bearerTokenProvider, ICancellationTokenProvider cancellationTokenProvider = null) : base(httpClientFactory, configurationKey, bearerTokenProvider, cancellationTokenProvider)
 	{
 	}
@@ -71,9 +74,31 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<Property?> CreateProperty(Property property)
+	public async Task<Property?> CreateProperty(Property property)
 	{
-		throw new NotImplementedException();
+		PropertyEntityCreateRequest createEntity = new()
+		{
+			Address1 = property.Address1,
+			Address2 = property.Address2,
+			ExpensesAmount = property.ExpensesAmount,
+			GrantAmount = property.GrantAmount,
+			Postcode = property.Postcode,
+			PropertyName = property.PropertyName,
+			Scheme = new AssociatedEntity(property.SchemeId, DynamicsEntityUrl.Scheme),
+			TotalAmount = property.TotalAmount,
+		};
+
+		var createRequest = await PostAsync<NoContentResponse, PropertyEntityCreateRequest>(DynamicsEntityUrl.Properties, createEntity);
+		if (createRequest.IsSuccessful())
+		{
+			Guid? entityId = ExtractEntityKey(createRequest.Headers);
+			if (entityId.HasValue)
+			{
+				return await GetProperty(entityId.Value);
+			}
+		}
+
+		return null;
 	}
 
 	public async Task<Provider?> CreateProvider(Provider provider)
@@ -148,10 +173,11 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
 	{
-		var response = await GetAsync<DynamicsReponseWrapper<GrantMilestoneEntity>>($"hea_schememilestones?$filter=_hea_programmescheme_value eq {schemeId}&$select={GrantMilestoneEntity.QueryFields}&$expand=hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+		var response = await GetAsync<DynamicsReponseWrapper<GrantMilestoneEntity>>($"hea_schememilestones?$filter=_hea_programmescheme_value eq {schemeId}&$select={GrantMilestoneEntity.QueryFields}&$expand=hea_ProgrammeScheme($select={SchemeEntity.QueryFields})",
+			customHeaders: PreferHeaders
+			);
 
 		return response.Content.Value.Select(_ => _.ToModel());
-		// hea_schememilestones?$filter=_hea_programmescheme_value eq a0a0c8cc-867c-ed11-81ad-00224841beb0&$select=hea_schememilestoneid,_hea_programmescheme_value,hea_completed,hea_completeddate,hea_grantpercentageawarded,hea_targetdate,hea_milestonetype&$expand=hea_ProgrammeScheme
 	}
 
 	public Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
@@ -185,7 +211,10 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<IEnumerable<Programme>> GetProgrammesAssociatedToSchemesForProvider(Guid providerId)
 	{
-		return Enumerable.Empty<Programme>();
+		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId}&$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields})&$select={SchemeEntity.QueryFields}");
+
+		return response.Content.Value?.DistinctBy(_ => _.ProgrammeId).Select(_ => _.FundingProgramme.ToModel());
+
 	}
 
 	public async Task<IEnumerable<KeyValue>> GetProgrammesWithProviderSchemeCreationEnabled()
@@ -231,14 +260,20 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return properties;
 	}
 
-	public Task<Property?> GetProperty(Guid propertyId)
+	public async Task<Property?> GetProperty(Guid propertyId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<PropertyEntity?>($"{DynamicsEntityUrl.Properties}({propertyId})?$filter=hea_schemepropertyid eq {propertyId}&$select={PropertyEntity.QueryFields}&$expand=hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields}),hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+
+
+		return response?.Content?.ToModel();
 	}
 
 	public async Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<PropertyEntity?>($"{DynamicsEntityUrl.Properties}({propertyId})?$filter=hea_schemepropertyid eq {propertyId}&$select={PropertyEntity.QueryFields}&$expand=hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields}),hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+
+
+		return response?.Content?.ToModel();
 	}
 
 	public async Task<Provider?> GetProvider(Guid providerId)
@@ -263,14 +298,25 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return response.Content?.ToModel();
 	}
 
-	public Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId)
+	public async Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId} and _hea_fundingprogramme_value eq {programmeId}&$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})&$select={SchemeEntity.QueryFields}");
+
+		if (response.IsSuccessful())
+		{
+			IEnumerable<Guid> programmeIds = response.Content.Value.Select(_ => _.ProgrammeId).Distinct();
+
+			var programmes = await GetProgrammes(programmeIds);
+			return response.Content?.Value?.Select(_ => _.ToModel(programmes));
+
+		}
+
+		return Enumerable.Empty<Scheme>();
 	}
 
 	public async Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId)
 	{
-		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId}");
+		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId}&$select={SchemeEntity.QueryFields}");
 
 		if (response.IsSuccessful())
 		{

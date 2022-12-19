@@ -7,7 +7,6 @@ public class FundingProgrammeEntity
 	public const string QueryFields = "hea_fundingprogrammeid,hea_name,hea_startdate,hea_enddate";
 
 	[JsonProperty(PropertyName = "hea_fundingprogrammeid")]
-
 	public Guid FundingProgrammeId { get; set; }
 
 	[JsonProperty(PropertyName = "hea_name")]

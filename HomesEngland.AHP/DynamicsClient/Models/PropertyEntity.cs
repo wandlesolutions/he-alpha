@@ -1,7 +1,6 @@
-﻿using HomesEngland.AHP.DynamicsClient.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace HomesEngland.AHP.DynamicsClient;
+namespace HomesEngland.AHP.DynamicsClient.Models;
 
 public class PropertyEntity
 {
