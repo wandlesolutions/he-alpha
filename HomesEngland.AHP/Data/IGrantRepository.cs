@@ -41,5 +41,6 @@ public interface IGrantRepository
 	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId);
 
 	Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate);
+	Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate);
 	Task<Scheme?> GetScheme(Guid schemeId);
 }

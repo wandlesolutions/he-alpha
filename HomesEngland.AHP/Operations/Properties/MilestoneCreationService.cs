@@ -58,7 +58,7 @@ public class MilestoneCreationService
 				Completed = false,
 				CompletionDate = null,
 				FinancialYearId = financialYear.FinanicalYearId,
-				GrantAmount = Math.Round(scheme.TotalGrant.Value * (grantMilestoneTemplate.Percentage.Value / 100), 2),
+				MilestoneGrantAmount = Math.Round(scheme.TotalGrantAmount.Value * (grantMilestoneTemplate.Percentage.Value / 100), 2),
 				MilestoneTypeId = grantMilestoneTemplate.MilestoneTypeId,
 				SchemeId = schemeId,
 				TargetDate = milestoneDate,
@@ -69,7 +69,7 @@ public class MilestoneCreationService
 
 		EnsureLastMilestoneHasRemainingGrantValue(scheme, milestones);
 
-		ValidateMilestoneGrantAmounts(milestones, scheme.TotalGrant);
+		ValidateMilestoneGrantAmounts(milestones, scheme.TotalGrantAmount);
 
 		await _repo.CreateGrantMilestones(milestones);
 	}
@@ -77,8 +77,8 @@ public class MilestoneCreationService
 	private void ValidateMilestoneGrantAmounts(List<GrantMilestone> milestones, decimal? grantAmount)
 	{
 		decimal milestoneTotals = milestones
-			.Where(_ => _.GrantAmount.HasValue)
-			.Sum(_ => _.GrantAmount.Value);
+			.Where(_ => _.MilestoneGrantAmount.HasValue)
+			.Sum(_ => _.MilestoneGrantAmount.Value);
 
 		if (milestoneTotals != grantAmount)
 		{
@@ -90,8 +90,8 @@ public class MilestoneCreationService
 	{
 		GrantMilestone lastMilestone = milestones.Last();
 
-		decimal totalAmountsExceptLast = milestones.Except(new GrantMilestone[] { lastMilestone }).Sum(_ => _.GrantAmount.Value);
+		decimal totalAmountsExceptLast = milestones.Except(new GrantMilestone[] { lastMilestone }).Sum(_ => _.MilestoneGrantAmount.Value);
 
-		lastMilestone.GrantAmount = scheme.TotalGrant.Value - totalAmountsExceptLast;
+		lastMilestone.MilestoneGrantAmount = scheme.TotalGrantAmount.Value - totalAmountsExceptLast;
 	}
 }

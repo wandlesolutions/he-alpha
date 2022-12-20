@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomesEngland.AHP.Data;
 
-public class SchemeExpenseClaim
+public class SchemeRevenueClaim
 {
-	public Guid SchemeExpenseClaimId { get; set; }
+	public Guid SchemeRevenueClaimId { get; set; }
 
 	[Required]
 	public Guid SchemeId { get; set; }
@@ -14,7 +14,7 @@ public class SchemeExpenseClaim
 	public Scheme Scheme { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
-	public decimal ExpenseAmount { get; set; }
+	public decimal ClaimAmount { get; set; }
 
 	public DateTime Created { get; set; }
 

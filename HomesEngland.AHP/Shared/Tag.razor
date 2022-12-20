@@ -1,0 +1,8 @@
+<strong class="govuk-tag">
+  @ChildContent
+</strong>
+
+@code{
+    [Parameter, EditorRequired]
+    public required RenderFragment ChildContent { get; set; }
+}

@@ -312,7 +312,7 @@ public class SqlGrantRepository : IGrantRepository
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM PaymentRequests");
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM FinancialYears");
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM PropertyExpenseClaims");
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM SchemeRevenueClaims");
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM GrantMilestones");
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM GrantMilestoneTemplates");
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM MilestoneTypes");
@@ -342,5 +342,21 @@ public class SqlGrantRepository : IGrantRepository
 		return await context.LocalAuthorities
 			.OrderBy(_ => _.LocalAuthorityName)
 			.ToListAsync();
+	}
+
+	public async Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate)
+	{
+		using var context = GetContext();
+
+		await context.GrantMilestones
+			.Where(_ => _.GrantMilestoneId == grantMilestoneId)
+			.ExecuteUpdateAsync(_ => 
+				_.SetProperty(p => p.CompletionDate, completionDate)
+				.SetProperty(p => p.Completed, true)
+			);
+
+			await context.SaveChangesAsync();
+
+			Console.WriteLine("Grant milestone completed");
 	}
 }

@@ -129,8 +129,8 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 			ProgrammeId = new AssociatedEntity(scheme.ProgrammeId, DynamicsEntityUrl.Programme),
 			ProviderId = new AssociatedEntity(scheme.ProviderId, DynamicsEntityUrl.Provider),
 			SchemeName = scheme.SchemeName,
-			TotalExpenses = scheme.TotalExpensesAmount,
-			TotalGrant = scheme.TotalGrant,
+			TotalExpenses = scheme.TotalRevenueFundingAmount,
+			TotalGrant = scheme.TotalGrantAmount,
 		};
 
 		if (scheme.LocalAuthorityId.HasValue)
@@ -394,5 +394,10 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		var response = await GetAsync<DynamicsReponseWrapper<LocalAuthorityEntity>>("accounts?$filter=customertypecode eq 281400000&$select=name,accountid");
 
 		return response.Content.Value?.Select(_ => _.ToModel());
+	}
+
+	public Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate)
+	{
+		throw new NotImplementedException();
 	}
 }

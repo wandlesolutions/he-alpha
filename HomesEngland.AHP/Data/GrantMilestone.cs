@@ -22,7 +22,7 @@ public class GrantMilestone
 	public bool Completed { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
-	public decimal? GrantAmount { get; set; }
+	public decimal? MilestoneGrantAmount { get; set; }
 
 	[Required]
 	public Guid MilestoneTypeId { get; set; }

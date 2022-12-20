@@ -45,8 +45,8 @@ public static class DynamicsConverters
 			ProviderId = scheme.ProviderId,
 			SchemeId = scheme.SchemeId,
 			SchemeName = scheme.SchemeName,
-			TotalExpensesAmount = scheme.TotalExpenses,
-			TotalGrant = scheme.TotalGrant,
+			TotalRevenueFundingAmount = scheme.TotalExpenses,
+			TotalGrantAmount = scheme.TotalGrant,
 			TotalAmount = total,
 			Programme = scheme.FundingProgramme?.ToModel(),
 			LocalAuthority = scheme.LocalAuthority?.ToModel(),
@@ -104,7 +104,7 @@ public static class DynamicsConverters
 		{
 			Completed = grantMilestoneEntity.Completed,
 			CompletionDate = grantMilestoneEntity.CompletionDate,
-			GrantAmount = grantMilestoneEntity.GrantAmount,
+			MilestoneGrantAmount = grantMilestoneEntity.GrantAmount,
 			GrantMilestoneId = grantMilestoneEntity.GrantMilestoneId,
 			MilestoneType = new MilestoneType()
 			{

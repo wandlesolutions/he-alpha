@@ -5,9 +5,9 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomesEngland.AHP", "HomesEngland.AHP\HomesEngland.AHP.csproj", "{995C3505-48A1-4A0E-B430-DE89AA590693}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BearerClient", "BearerClient\BearerClient.csproj", "{07B89D0E-5065-4F5C-BBA8-B121259FEC51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BearerClient", "BearerClient\BearerClient.csproj", "{07B89D0E-5065-4F5C-BBA8-B121259FEC51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomesEngland.AHP.UnitTests", "HomesEngland.AHP.UnitTests\HomesEngland.AHP.UnitTests.csproj", "{D6B0BB3F-8667-46BB-A2D2-E203D55F8F00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomesEngland.AHP.UnitTests", "HomesEngland.AHP.UnitTests\HomesEngland.AHP.UnitTests.csproj", "{D6B0BB3F-8667-46BB-A2D2-E203D55F8F00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,6 +5,8 @@
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
 
+<PageTitle>Update grant milestone</PageTitle>
+
 @if (GrantMilestone != null && Scheme != null)
 {
     <Caption CaptionSize="CaptionSize.Large">@GrantMilestone.MilestoneType.MilestoneTypeName for @Scheme.SchemeName</Caption>
@@ -47,9 +49,37 @@
                         </FormLayout>
 
                     }
+
+                    @if (CompletionScreen == "complete")
+                    {
+                        <Paragraph>
+                            You are about to mark this milestone as complete. This will trigger a payment after the milestone date.
+                        </Paragraph>
+
+                        <DataList>
+                            <DataRow>
+                                <DataTerm>Programme:</DataTerm>
+                                <DataDefinition>@Scheme.Programme.ProgrammeName</DataDefinition>
+                            </DataRow>
+
+                            <DataRow>
+                                <DataTerm>Grant amount:</DataTerm>
+                                <DataDefinition>
+                                    <Currency Amount="@GrantMilestone.MilestoneGrantAmount"></Currency>
+                                </DataDefinition>
+                            </DataRow>
+                            <DataRow>
+                                <DataTerm>Milestone completion date:</DataTerm>
+                                <DataDefinition>
+                                    <LiteralDate Value="GrantMilestone.TargetDate"></LiteralDate>
+                                </DataDefinition>
+                            </DataRow>
+                        </DataList>
+
+                        <GovButton OnClick="OnCompleteMilestone">Complete milestone</GovButton>
+
+                    }
                 }
-
-
             }
             else
             {
@@ -158,6 +188,28 @@
     public void OnDecision()
     {
         CompletionScreen = CompletionDecision;
+    }
+
+    public async Task OnCompleteMilestone()
+    {
+        pageState = PageStatus.PerformingAction;
+        var milestone = await grantRepo.GetGrantMilestone(GrantMilestoneId);
+
+        if (milestone == null)
+        {
+            pageState = PageStatus.PreconditionFailed;
+            return;
+        }
+
+        if (milestone.Completed || milestone.CompletionDate.HasValue)
+        {
+            pageState = PageStatus.PreconditionFailed;
+            return;
+        }
+
+        await grantRepo.CompleteGrantMilestone(milestone.GrantMilestoneId, milestone.TargetDate);
+
+        navManager.NavigateTo($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}");
     }
 
 }

@@ -17,7 +17,7 @@ public class PaymentRequest
 	public double Amount { get; set; }
 
 	public Guid? PropertyExpenseClaimId { get; set; }
-	public SchemeExpenseClaim? PropertyExpenseClaim { get; set; }
+	public SchemeRevenueClaim? PropertyExpenseClaim { get; set; }
 
 	public Guid? GrantMilestoneId { get; set; }
 	public GrantMilestone? GrantMilestone { get; set; }

@@ -26,11 +26,13 @@ public class Scheme
 
 	public ICollection<GrantMilestone>? GrantMilestones { get; set; }
 
-	[Column(TypeName = ColumnTypes.Money)]
-	public decimal? TotalGrant { get; set; }
+	public ICollection<SchemeRevenueClaim>? RevenueFundingClaims { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
-	public decimal? TotalExpensesAmount { get; set; }
+	public decimal? TotalGrantAmount { get; set; }
+
+	[Column(TypeName = ColumnTypes.Money)]
+	public decimal? TotalRevenueFundingAmount { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
 	public decimal? TotalAmount { get; set; }

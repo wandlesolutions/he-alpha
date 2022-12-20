@@ -39,9 +39,9 @@
         <DataRow>
             <DataTerm>Grant amount:</DataTerm>
             <DataDefinition>
-                @if (Scheme.TotalGrant.HasValue)
+                @if (Scheme.TotalGrantAmount.HasValue)
                 {
-                    <Currency Amount="@Scheme.TotalGrant"></Currency>
+                    <Currency Amount="@Scheme.TotalGrantAmount"></Currency>
                 }
                 else
                 {
@@ -54,9 +54,9 @@
             <DataTerm>Revenue funding amount:</DataTerm>
             <DataDefinition>
 
-                @if (Scheme.TotalExpensesAmount.HasValue)
+                @if (Scheme.TotalRevenueFundingAmount.HasValue)
                 {
-                    <Currency Amount="@Scheme.TotalExpensesAmount"></Currency>
+                    <Currency Amount="@Scheme.TotalRevenueFundingAmount"></Currency>
                 }
                 else
                 {
@@ -96,10 +96,21 @@
             <RowTemplate>
                 <GovTableRowHeader>
                     @milestone.MilestoneType.MilestoneTypeName
+
+
+
                 </GovTableRowHeader>
-                <GovTableData><Currency Amount="@milestone.GrantAmount"></Currency></GovTableData>
+                <GovTableData><Currency Amount="@milestone.MilestoneGrantAmount"></Currency></GovTableData>
                 <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
-                <GovTableData><GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink></GovTableData>
+                <GovTableData>
+                    @if(milestone.Completed){
+    <Tag>Completed</Tag>
+}
+else{
+    <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
+}
+                    
+                    </GovTableData>
             </RowTemplate>
         </GovTable>
     }
@@ -107,7 +118,7 @@
         <Inset>No grant milestones have been created against this scheme</Inset>
     }
 
-    @if(Scheme.TotalExpensesAmount > 0)
+    @if(Scheme.TotalRevenueFundingAmount > 0)
     {
         <Heading Size="HeadingSize.Medium">Revenue funding</Heading>
         <Inset>No revenue funding claims have been assigned to this scheme</Inset>
