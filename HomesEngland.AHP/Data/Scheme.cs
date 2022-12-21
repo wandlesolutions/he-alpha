@@ -45,4 +45,10 @@ public class Scheme
 	public Guid? LocalAuthorityId { get; set; }
 
 	public LocalAuthority? LocalAuthority { get; set; }
+
+	[Required]
+	public required string StatusName { get; set; }
+
+	[Required]
+	public int StatusCode { get; set; }
 }

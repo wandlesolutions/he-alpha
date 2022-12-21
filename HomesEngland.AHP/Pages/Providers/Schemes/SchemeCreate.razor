@@ -13,7 +13,6 @@
 }
 <PageHeading>Create scheme</PageHeading>
 
-
 <PageContentContainer>
     <PageStatusContainer PageStatus="pageState" EntityName="scheme">
         <MainContents>
@@ -26,7 +25,7 @@
                     <FormSelect Id="localAuthorityId" @bind-Value="CreateModel.LocalAuthorityId" Label="Local authority" Items="LocalAuthorities" NoItemsText="There are no local authorities associate with this scheme"></FormSelect>
                     <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
                     <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Revenue amount"></FormInputMoney>
-                    
+
                     <CustomValidation @ref="customValidation"></CustomValidation>
 
                     <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
@@ -110,6 +109,8 @@
                     TotalGrantAmount = CreateModel.GrantAmount,
                     TotalRevenueFundingAmount = CreateModel.ExpensesAmount,
                     TotalAmount = totalAmount,
+                    StatusName = "Pending approval",
+                    StatusCode = 0,
                 };
 
             if (!string.IsNullOrWhiteSpace(CreateModel.LocalAuthorityId))
@@ -122,7 +123,7 @@
             if (result != null)
             {
                 await milestoneCreationService.CreateMilestoneAfterSchemeIsCreated(result.SchemeId);
-                
+
                 navManager.NavigateTo($"/providers/byid/{result.ProviderId}/schemes?createSuccessful=true");
             }
             else

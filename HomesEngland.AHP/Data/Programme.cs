@@ -16,6 +16,9 @@ public class Programme
 	[Required]
 	public DateTimeOffset Finish { get; set; }
 
+	[Required]
+	public bool Approved { get; set; }
+
 	public ICollection<ProgrammeFeature> ProgrammeFeatures { get; set; }
 
 	public ICollection<GrantMilestoneTemplate> TemplateGrantMilestones { get; set; }

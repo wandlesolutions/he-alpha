@@ -17,15 +17,26 @@
 
 @if (Scheme != null)
 {
+    <div style="margin-bottom: 30px">
+        @if (Scheme.StatusName == "Active")
+        {
+            <Tag>Approved</Tag>
+        }
+        else
+        {
+            <Tag Color="TagColor.Grey">@Scheme.StatusName</Tag>
+        }
+    </div>
+
     <DataList>
         <DataRow>
             <DataTerm>Programme:</DataTerm>
             <DataDefinition>@Scheme.Programme.ProgrammeName</DataDefinition>
         </DataRow>
-         <DataRow>
+        <DataRow>
             <DataTerm>Local Authority:</DataTerm>
             <DataDefinition>
-                @if(Scheme.LocalAuthority != null && !string.IsNullOrWhiteSpace(Scheme.LocalAuthority.LocalAuthorityName))
+                @if (Scheme.LocalAuthority != null && !string.IsNullOrWhiteSpace(Scheme.LocalAuthority.LocalAuthorityName))
                 {
                     @Scheme.LocalAuthority.LocalAuthorityName
                 }
@@ -33,7 +44,7 @@
                 {
                     <text>Not set</text>
                 }
-                </DataDefinition>
+            </DataDefinition>
         </DataRow>
 
         <DataRow>
@@ -81,10 +92,10 @@
         </DataRow>
     </DataList>
 
-    
+
 
     <Heading Size="HeadingSize.Medium">Grant milestones</Heading>
-    if(GrantMilestones != null && GrantMilestones.Any())
+    if (GrantMilestones != null && GrantMilestones.Any())
     {
         <GovTable Items="GrantMilestones" Context="milestone">
             <Header>
@@ -103,28 +114,31 @@
                 <GovTableData><Currency Amount="@milestone.MilestoneGrantAmount"></Currency></GovTableData>
                 <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
                 <GovTableData>
-                    @if(milestone.Completed){
-    <Tag>Completed</Tag>
-}
-else{
-    <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
-}
-                    
-                    </GovTableData>
+                    @if (milestone.Completed)
+                    {
+                        <Tag>Completed</Tag>
+                    }
+                    else
+                    {
+                        <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
+                    }
+
+                </GovTableData>
             </RowTemplate>
         </GovTable>
     }
-    else{
+    else
+    {
         <Inset>No grant milestones have been created against this scheme</Inset>
     }
 
-    @if(Scheme.TotalRevenueFundingAmount > 0)
+    @if (Scheme.TotalRevenueFundingAmount > 0)
     {
         <Heading Size="HeadingSize.Medium">Revenue funding</Heading>
         <Inset>No revenue funding claims have been assigned to this scheme</Inset>
     }
 
-   
+
 }
 else
 {
@@ -142,7 +156,7 @@ else
 
     [Parameter]
     public Guid SchemeId { get; set; }
-    
+
     private Scheme? Scheme { get; set; }
 
     public string PageTitle { get; set; } = "Scheme details";
@@ -156,7 +170,7 @@ else
         {
             GrantMilestones = await repo.GetGrantMilestones(SchemeId);
             PageTitle = $"{Scheme.SchemeName} - Scheme details";
-        } 
+        }
     }
 
     [CascadingParameter]
@@ -166,7 +180,7 @@ else
     {
         MainLayout?.SetBreadcrumbs(
                    BreadcrumbItem.ProviderBase()
-                   .AddProvider (Provider)
+                   .AddProvider(Provider)
                    .AddSchemes(Provider));
     }
 }

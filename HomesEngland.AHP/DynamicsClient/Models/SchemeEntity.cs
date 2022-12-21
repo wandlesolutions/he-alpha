@@ -4,7 +4,7 @@ namespace HomesEngland.AHP.DynamicsClient.Models;
 
 public record SchemeEntity
 {
-	public const string QueryFields = "hea_programmeschemeid,hea_name,hea_totalexpenseslimit,hea_totalgrant,_hea_schemeprovider_value,_hea_fundingprogramme_value";
+	public const string QueryFields = "hea_programmeschemeid,hea_name,hea_totalexpenseslimit,hea_totalgrant,_hea_schemeprovider_value,_hea_fundingprogramme_value,statuscode";
 
 	[JsonProperty("hea_programmeschemeid")]
 	public Guid SchemeId { get; set; }
@@ -23,6 +23,12 @@ public record SchemeEntity
 
 	[JsonProperty("_hea_fundingprogramme_value")]
 	public Guid ProgrammeId { get; set; }
+
+	[JsonProperty("statuscode")]
+	public int StatusCode { get; set; }
+
+	[JsonProperty("statuscode@OData.Community.Display.V1.FormattedValue")]
+	public required string StatusName { get; set; }
 
 	[JsonProperty("hea_FundingProgramme")]
 	public FundingProgrammeEntity? FundingProgramme { get; set; }

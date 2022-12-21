@@ -79,6 +79,11 @@
                         <GovButton OnClick="OnCompleteMilestone">Complete milestone</GovButton>
 
                     }
+
+                    @if(CompletionScreen == "schemeNotApproved")
+                    {
+                        <Warning>This scheme is not approved, so completing milestones is not available until approval has been granted.</Warning>
+                    }
                 }
             }
             else
@@ -133,9 +138,18 @@
         Scheme = await grantRepo.GetScheme(SchemeId);
         GrantMilestone = await grantRepo.GetGrantMilestone(GrantMilestoneId);
 
-        CreateModel.TargetDate = GrantMilestone.TargetDate;
+        if (GrantMilestone == null
+        || Provider == null
+        || Scheme == null)
+        {
+            pageState = PageStatus.PreconditionFailed;
+        }
+        else
+        {
+            CreateModel.TargetDate = GrantMilestone.TargetDate;
 
-        pageState = PageStatus.Visible;
+            pageState = PageStatus.Visible;
+        }
     }
 
 
@@ -154,8 +168,9 @@
     {
         pageState = PageStatus.PerformingAction;
         disableSubmitButton = true;
-
-        if (CreateModel.TargetDate.HasValue)
+        
+        if (CreateModel.TargetDate.HasValue
+        && CreateModel.TargetDate.Value < DateTime.Now)
         {
             // Add validation message if targetdate is today or earlier
             customValidation?.ClearErrors();
@@ -187,6 +202,14 @@
 
     public void OnDecision()
     {
+        if(CompletionDecision == "complete")
+        {
+            if(Scheme.StatusCode != 1)
+            {
+                CompletionScreen = "schemeNotApproved";
+                return;
+            }
+        }
         CompletionScreen = CompletionDecision;
     }
 

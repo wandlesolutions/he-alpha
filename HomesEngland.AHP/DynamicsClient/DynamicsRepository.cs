@@ -166,9 +166,13 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		throw new NotImplementedException();
 	}
 
-	public Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId)
+	public async Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId)
 	{
-		throw new NotImplementedException();
+		var response = await GetAsync<GrantMilestoneEntity>($"hea_schememilestones({grantMilestoneId})?$select={GrantMilestoneEntity.QueryFields}&$expand=hea_ProgrammeScheme($select={SchemeEntity.QueryFields})",
+			customHeaders: PreferHeaders
+			);
+
+		return response?.Content?.ToModel();
 	}
 
 	public async Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId)
@@ -231,7 +235,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 	public async Task<IEnumerable<KeyValue>> GetProgrammesWithProviderSchemeCreationEnabled()
 	{
 		// TODO: filtering based on feature toggles
-		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeKeyValueEntity>>($"hea_fundingprogrammes?$filter=Microsoft.Dynamics.CRM.ContainValues(PropertyName='hea_programmefeatures',PropertyValues=%5B'{FeatureToggleChoiceIds.ProviderCanCreateSchemes}'%5D)&$select={FundingProgrammeKeyValueEntity.QueryFields}");
+		var response = await GetAsync<DynamicsReponseWrapper<FundingProgrammeKeyValueEntity>>($"hea_fundingprogrammes?$filter=statuscode eq 1 and Microsoft.Dynamics.CRM.ContainValues(PropertyName='hea_programmefeatures',PropertyValues=%5B'{FeatureToggleChoiceIds.ProviderCanCreateSchemes}'%5D)&$select={FundingProgrammeKeyValueEntity.QueryFields}");
 
 		return response.Content.Value.Select(_ => new KeyValue()
 		{
@@ -304,14 +308,16 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<Scheme?> GetScheme(Guid schemeId)
 	{
-		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})?$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})");
+		var response = await GetAsync<SchemeEntity>($"{DynamicsEntityUrl.Scheme}({schemeId})?$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})",
+		customHeaders: PreferHeaders);
 
 		return response.Content?.ToModel();
 	}
 
 	public async Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId)
 	{
-		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId} and _hea_fundingprogramme_value eq {programmeId}&$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})&$select={SchemeEntity.QueryFields}");
+		var response = await GetAsync<DynamicsReponseWrapper<SchemeEntity>>($"hea_programmeschemes?$filter=_hea_schemeprovider_value eq {providerId} and _hea_fundingprogramme_value eq {programmeId}&$expand=hea_FundingProgramme($select={FundingProgrammeEntity.QueryFields}),hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields})&$select={SchemeEntity.QueryFields}",
+		customHeaders: PreferHeaders);
 
 		if (response.IsSuccessful())
 		{
@@ -357,9 +363,21 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return results;
 	}
 
-	public Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate)
+	public async Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate)
 	{
-		throw new NotImplementedException();
+		var updateModel = new GrantMilestoneDateUpdateEntity()
+		{
+			TargetDate = targetDate
+		};
+
+		var response = await PatchAsync<GrantMilestoneDateUpdateEntity>($"{DynamicsEntityUrl.GrantMilestones}({grantMilestoneId})",
+			updateModel);
+
+		if (response != System.Net.HttpStatusCode.NoContent &&
+			response != System.Net.HttpStatusCode.OK)
+		{
+			throw new Exception($"Failed to update grant milestone date. Status code: {response}");
+		}
 	}
 
 	public static Guid? ExtractEntityKey(HttpHeaders? headers)

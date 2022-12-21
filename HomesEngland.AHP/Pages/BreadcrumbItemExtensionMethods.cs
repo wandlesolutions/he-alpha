@@ -30,6 +30,11 @@ public static class BreadcrumbItemExtensionMethods
 	}
 	public static List<BreadcrumbItem> AddProvider(this List<BreadcrumbItem> breadcrumbItems, Provider provider)
 	{
+		if (provider == null)
+		{
+			return breadcrumbItems;
+		}
+
 		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}", provider.ProviderName));
 		return breadcrumbItems;
 	}
@@ -42,12 +47,28 @@ public static class BreadcrumbItemExtensionMethods
 
 	public static List<BreadcrumbItem> AddScheme(this List<BreadcrumbItem> breadcrumbItems, Provider provider, Scheme scheme)
 	{
+		if (scheme == null)
+		{
+			return breadcrumbItems;
+		}
+
+		if (provider == null)
+		{
+			return breadcrumbItems;
+		}
+
 		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/schemes/byid/{scheme.SchemeId}", scheme.SchemeName));
 		return breadcrumbItems;
 	}
 
 	public static List<BreadcrumbItem> AddProperties(this List<BreadcrumbItem> breadcrumbItems, Provider provider)
 	{
+		if (provider == null)
+		{
+
+			return breadcrumbItems;
+		}
+
 		breadcrumbItems.Add(new BreadcrumbItem($"/providers/byid/{provider.ProviderId}/properties", "Properties"));
 		return breadcrumbItems;
 	}

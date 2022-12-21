@@ -1,8 +1,29 @@
-<strong class="govuk-tag">
+<strong class="govuk-tag @TagColorCss">
   @ChildContent
 </strong>
 
 @code{
     [Parameter, EditorRequired]
     public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public TagColor? Color { get; set; }
+
+    private string TagColorCss{
+        get{
+            return Color switch{
+                TagColor.Grey => "govuk-tag--grey",
+                TagColor.Green => "govuk-tag--green",
+                TagColor.Turquoise => "govuk-tag--turquoise",
+                TagColor.Blue => "govuk-tag--blue",
+                TagColor.Purple => "govuk-tag--purple",
+                TagColor.Pink => "govuk-tag--pink",
+                TagColor.Red => "govuk-tag--red",
+                TagColor.Orange => "govuk-tag--orange",
+                TagColor.Yellow => "govuk-tag--yellow",
+                TagColor.Default => "",
+                _ => ""
+            };
+        }
+    }
 }

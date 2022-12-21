@@ -50,6 +50,8 @@ public static class DynamicsConverters
 			TotalAmount = total,
 			Programme = scheme.FundingProgramme?.ToModel(),
 			LocalAuthority = scheme.LocalAuthority?.ToModel(),
+			StatusCode = scheme.StatusCode,
+			StatusName = scheme.StatusName,
 		};
 	}
 
