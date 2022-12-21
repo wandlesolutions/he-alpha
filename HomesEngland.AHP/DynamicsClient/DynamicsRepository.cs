@@ -414,8 +414,21 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return response.Content.Value?.Select(_ => _.ToModel());
 	}
 
-	public Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate)
+	public async Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate)
 	{
-		throw new NotImplementedException();
+		var updateModel = new GrantMilestoneCompletedUpdateEntity()
+		{
+			CompletedDate = completionDate,
+			Completed = true,
+		};
+
+		var response = await PatchAsync<GrantMilestoneCompletedUpdateEntity>($"{DynamicsEntityUrl.GrantMilestones}({grantMilestoneId})",
+			updateModel);
+
+		if (response != System.Net.HttpStatusCode.NoContent &&
+			response != System.Net.HttpStatusCode.OK)
+		{
+			throw new Exception($"Failed to update grant milestone. Status code: {response}");
+		}
 	}
 }
