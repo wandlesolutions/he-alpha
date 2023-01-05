@@ -1,0 +1,137 @@
+﻿@page "/providers/byid/{ProviderId:guid}/schemes/byid/{SchemeId:guid}/revenueFunding/create"
+@using HomesEngland.AHP.Data;
+@using HomesEngland.AHP.Helpers;
+@using HomesEngland.AHP.Operations.Properties;
+@inject IServiceProvider serviceProvider
+@inject IGrantRepository grantRepo
+@inject NavigationManager navManager
+
+<PageTitle>Create revenue funding claim</PageTitle>
+@if (Scheme != null)
+{
+    <Caption CaptionSize="CaptionSize.Large">@Scheme.SchemeName</Caption>
+}
+<PageHeading>Create revenue funding claim</PageHeading>
+
+
+<PageContentContainer>
+    <PageStatusContainer PageStatus="pageState" EntityName="property">
+        <MainContents>
+
+            @if (Scheme != null)
+            {
+                <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
+                    <FormInputMoney Id="claimAmount" @bind-Value="CreateModel.ClaimAmount" Label="Claim amount"></FormInputMoney>
+                    <FormInputDate Id="paymentDate" @bind-Value="CreateModel.PaymentDate" Label="Payment date"></FormInputDate>
+
+                    <CustomValidation @ref="customValidation"></CustomValidation>
+
+                    <SubmitButton Disabled="disableSubmitButton" Label="Create claim" />
+                </FormLayout>
+            }
+            else
+            {
+                <Inset>Scheme not found</Inset>
+            }
+        </MainContents>
+
+    </PageStatusContainer>
+</PageContentContainer>
+
+
+@code {
+    private RevenueFundingClaimFormModel CreateModel = new();
+    private bool disableSubmitButton = false;
+    private EditContext? editContext;
+
+    private CustomValidation? customValidation;
+
+    private PageStatus pageState { get; set; } = PageStatus.Loading;
+
+    [Parameter]
+    public Guid? SchemeId { get; set; }
+
+    [Parameter]
+    public Guid? ProviderId { get; set; }
+
+    private Scheme? Scheme { get; set; }
+    private Provider? Provider { get; set; }
+
+    [CascadingParameter]
+    public MainLayout? MainLayout { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(CreateModel);
+        editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        Scheme = await grantRepo.GetScheme(SchemeId.Value);
+        Provider = await grantRepo.GetProvider(ProviderId.Value);
+
+        if (Scheme != null)
+        {
+            pageState = PageStatus.Visible;
+
+        }
+        else
+        {
+            pageState = PageStatus.PreconditionFailed;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        MainLayout?.SetBreadcrumbs(
+                    BreadcrumbItem.ProviderBase()
+                    .AddProvider(Provider)
+                    .AddSchemes(Provider)
+                    .AddScheme(Provider, Scheme));
+    }
+
+    public async Task OnSubmit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+        if (editContext != null && editContext.Validate())
+        {
+
+            var financialYears = await grantRepo.GetFinancialYears();
+
+            var financialYear = financialYears.FromDate(CreateModel.PaymentDate.Value);
+            if (financialYear == null)
+            {
+                throw new InvalidOperationException("Unable to find financial year");
+            }
+
+            SchemeRevenueClaim schemeRevenueClaim = new()
+                {
+                    SchemeId = SchemeId.Value,
+                    ClaimAmount = CreateModel.ClaimAmount.Value,
+                    PaymentDate = CreateModel.PaymentDate.Value,
+                    Created = DateTime.UtcNow,
+                    FinancialYearId = financialYear.FinanicalYearId,
+                };
+
+            var result = await grantRepo.CreateSchemeRevenueClaim(schemeRevenueClaim);
+
+            if (result != null)
+            {
+                navManager.NavigateTo($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}?createRevenueFundingClaimSuccessful=true");
+            }
+            else
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+
+
+}
+

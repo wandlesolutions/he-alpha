@@ -100,6 +100,9 @@ public class SqlGrantRepository : IGrantRepository
 	{
 		using var context = GetContext();
 
+		// Override to automatically set as approved
+		scheme.StatusName = "Active";
+
 		await context.Schemes.AddAsync(scheme);
 		await context.SaveChangesAsync();
 		return scheme;
@@ -183,7 +186,10 @@ public class SqlGrantRepository : IGrantRepository
 	{
 		using var context = GetContext();
 
-		return await context.ProgrammeFeatures.Where(_ => _.ProgrammeId == programmeId).ToListAsync();
+		return await context.ProgrammeFeatures
+			.Where(_ => _.ProgrammeId == programmeId)
+			.Include(_ => _.Feature)
+			.ToListAsync();
 	}
 
 	public async Task<IEnumerable<Programme>> GetProgrammes()
@@ -350,13 +356,38 @@ public class SqlGrantRepository : IGrantRepository
 
 		await context.GrantMilestones
 			.Where(_ => _.GrantMilestoneId == grantMilestoneId)
-			.ExecuteUpdateAsync(_ => 
+			.ExecuteUpdateAsync(_ =>
 				_.SetProperty(p => p.CompletionDate, completionDate)
 				.SetProperty(p => p.Completed, true)
 			);
 
-			await context.SaveChangesAsync();
+		await context.SaveChangesAsync();
 
-			Console.WriteLine("Grant milestone completed");
+		Console.WriteLine("Grant milestone completed");
+	}
+
+	public Task<IEnumerable<GrantMilestoneSplitRequestStatus>> GetGrantMilestoneSplitStatus(Guid schemeId)
+	{
+		return Task.FromResult(Enumerable.Empty<GrantMilestoneSplitRequestStatus>());
+	}
+
+	public async Task<SchemeRevenueClaim> CreateSchemeRevenueClaim(SchemeRevenueClaim schemeRevenueClaim)
+	{
+		using var context = GetContext();
+
+		await context.SchemeRevenueClaims.AddAsync(schemeRevenueClaim);
+		await context.SaveChangesAsync();
+
+		return schemeRevenueClaim;
+	}
+
+	public async Task<IEnumerable<SchemeRevenueClaim>> GetSchemeRevenueClaims(Guid schemeId)
+	{
+		using var context = GetContext();
+
+		return await context.SchemeRevenueClaims
+			.Where(_ => _.SchemeId == schemeId)
+			.OrderBy(_ => _.PaymentDate)
+			.ToListAsync();
 	}
 }

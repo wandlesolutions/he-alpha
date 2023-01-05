@@ -12,6 +12,7 @@ public interface IGrantRepository
 	Task<ProgrammeFeature?> CreateProgrammeFeature(ProgrammeFeature programmeFeature);
 	Task<Property?> CreateProperty(Property property);
 	Task<Provider?> CreateProvider(Provider provider);
+	Task<SchemeRevenueClaim> CreateSchemeRevenueClaim(SchemeRevenueClaim schemeRevenueClaim);
 	Task<Scheme?> CreateScheme(Scheme scheme);
 
 	Task DeleteProgrammeFeature(Guid programmeFeatureId);
@@ -34,11 +35,13 @@ public interface IGrantRepository
 
 	Task<IEnumerable<Scheme>> GetSchemesForProvider(Guid providerId);
 	Task<IEnumerable<Scheme>> GetSchemesForProgrammeForProvider(Guid programmeId, Guid providerId);
+	Task<IEnumerable<SchemeRevenueClaim>> GetSchemeRevenueClaims(Guid schemeId);
 	Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId);
 	Task<Property?> GetProperty(Guid propertyId);
 	Task<IEnumerable<FinancialYear>> GetFinancialYears();
 	Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones);
 	Task<IEnumerable<GrantMilestone>> GetGrantMilestones(Guid schemeId);
+	Task<IEnumerable<GrantMilestoneSplitRequestStatus>> GetGrantMilestoneSplitStatus(Guid schemeId);
 
 	Task UpdateGrantMilestoneDate(Guid grantMilestoneId, DateTimeOffset targetDate);
 	Task CompleteGrantMilestone(Guid grantMilestoneId, DateTimeOffset completionDate);

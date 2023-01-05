@@ -4,6 +4,7 @@ using HomesEngland.AHP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomesEngland.AHP.Migrations
 {
     [DbContext(typeof(AhpContext))]
-    partial class AhpContextModelSnapshot : ModelSnapshot
+    [Migration("20230103092820_ApprovalsAndLocalAuthority")]
+    partial class ApprovalsAndLocalAuthority
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -373,14 +376,14 @@ namespace HomesEngland.AHP.Migrations
                     b.Property<decimal>("ClaimAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("FinancialYearId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("PaymentDate")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("SchemeId")
                         .HasColumnType("uniqueidentifier");

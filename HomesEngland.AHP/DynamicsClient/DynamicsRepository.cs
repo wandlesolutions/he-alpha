@@ -8,7 +8,8 @@ namespace HomesEngland.AHP.DynamicsClient;
 
 public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 {
-	private readonly static string[] PreferHeaders = new string[] { "Prefer", "odata.include-annotations=*" };
+	private readonly static IDictionary<string, IEnumerable<string>> PreferHeaders = new Dictionary<string, IEnumerable<string>> { { "Prefer", new string[] { "odata.include-annotations=*" } } };
+	private readonly static IDictionary<string, IEnumerable<string>> PatchHeaders = new Dictionary<string, IEnumerable<string>> { { "If-Match", new string[] { "*" } } };
 
 
 	public DynamicsRepository(IHttpClientFactory httpClientFactory, string configurationKey, IBearerTokenProvider bearerTokenProvider, ICancellationTokenProvider cancellationTokenProvider = null) : base(httpClientFactory, configurationKey, bearerTokenProvider, cancellationTokenProvider)
@@ -33,6 +34,16 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 	public Task CreateGrantMilestones(IEnumerable<GrantMilestone> milestones)
 	{
 		throw new NotImplementedException();
+	}
+
+	public async Task CreateGrantMilestoneSplit(GrantMilestoneSplitCreateRequest request)
+	{
+		var createRequest = await PostAsync<NoContentResponse, GrantMilestoneSplitCreateRequest>(DynamicsEntityUrl.GrantMilestoneSplitRequests, request);
+		if (!createRequest.IsSuccessful())
+		{
+			throw new InvalidOperationException("Unable to create split request");
+		}
+
 	}
 
 	public Task<GrantMilestoneTemplate?> CreateGrantMilestoneTemplate(GrantMilestoneTemplate feature)
@@ -180,6 +191,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		var response = await GetAsync<DynamicsReponseWrapper<GrantMilestoneEntity>>($"hea_schememilestones?$filter=_hea_programmescheme_value eq {schemeId}&$select={GrantMilestoneEntity.QueryFields}&$expand=hea_ProgrammeScheme($select={SchemeEntity.QueryFields})",
 			customHeaders: PreferHeaders
 			);
+
 
 		if (!response.IsSuccessful())
 		{
@@ -371,7 +383,8 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		};
 
 		var response = await PatchAsync<GrantMilestoneDateUpdateEntity>($"{DynamicsEntityUrl.GrantMilestones}({grantMilestoneId})",
-			updateModel);
+			updateModel,
+			PatchHeaders);
 
 		if (response != System.Net.HttpStatusCode.NoContent &&
 			response != System.Net.HttpStatusCode.OK)
@@ -423,12 +436,43 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		};
 
 		var response = await PatchAsync<GrantMilestoneCompletedUpdateEntity>($"{DynamicsEntityUrl.GrantMilestones}({grantMilestoneId})",
-			updateModel);
+			updateModel,
+			PatchHeaders);
 
 		if (response != System.Net.HttpStatusCode.NoContent &&
 			response != System.Net.HttpStatusCode.OK)
 		{
 			throw new Exception($"Failed to update grant milestone. Status code: {response}");
 		}
+	}
+
+	public async Task<IEnumerable<GrantMilestoneSplitRequestStatus>> GetGrantMilestoneSplitStatus(Guid schemeId)
+	{
+		var response = await GetAsync<DynamicsReponseWrapper<GrantMilestoneSplitRequest>>($"{DynamicsEntityUrl.GrantMilestoneSplitRequests}?$filter=_hea_programmescheme_value eq {schemeId}&$select={GrantMilestoneSplitRequest.QueryFields}",
+			customHeaders: PreferHeaders);
+
+		List<GrantMilestoneSplitRequestStatus> results = new List<GrantMilestoneSplitRequestStatus>();
+
+		foreach (var milestoneRequest in response.Content.Value)
+		{
+			results.Add(new GrantMilestoneSplitRequestStatus()
+			{
+				GrantMilestoneId = milestoneRequest.AssociatedGrantMilestoneId,
+				StatusCode = milestoneRequest.StatusCode,
+				StatusName = milestoneRequest.StatusName,
+			});
+		}
+
+		return results;
+	}
+
+	public Task<SchemeRevenueClaim> CreateSchemeRevenueClaim(SchemeRevenueClaim schemeRevenueClaim)
+	{
+		throw new NotImplementedException();
+	}
+
+	public Task<IEnumerable<SchemeRevenueClaim>> GetSchemeRevenueClaims(Guid schemeId)
+	{
+		return Task.FromResult(Enumerable.Empty<SchemeRevenueClaim>());
 	}
 }

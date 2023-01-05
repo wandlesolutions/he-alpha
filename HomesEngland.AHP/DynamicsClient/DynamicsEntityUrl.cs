@@ -3,6 +3,7 @@
 public class DynamicsEntityUrl
 {
 	public const string GrantMilestones = "hea_schememilestones";
+	public const string GrantMilestoneSplitRequests = "hea_milestonesplitrequests";
 	public const string Scheme = "hea_programmeschemes";
 
 	public static string Programme = "hea_fundingprogrammes";

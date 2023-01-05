@@ -26,9 +26,6 @@ public class Property
 	[StringLength(16)]
 	public string? Postcode { get; set; }
 
-	[StringLength(64)]
-	public string? LocalAuthority { get; set; }
-
 	[Column(TypeName = ColumnTypes.Money)]
 	public decimal? GrantAmount { get; set; }
 

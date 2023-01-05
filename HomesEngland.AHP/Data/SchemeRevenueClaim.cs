@@ -11,17 +11,17 @@ public class SchemeRevenueClaim
 	[Required]
 	public Guid SchemeId { get; set; }
 
-	public Scheme Scheme { get; set; }
+	public Scheme? Scheme { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
 	public decimal ClaimAmount { get; set; }
 
-	public DateTime Created { get; set; }
+	public DateTimeOffset Created { get; set; }
 
-	public DateTime PaymentDate { get; set; }
+	public DateTimeOffset PaymentDate { get; set; }
 
 	[Required]
 	public Guid FinancialYearId { get; set; }
 
-	public FinancialYear FinancialYear { get; set; }
+	public FinancialYear? FinancialYear { get; set; }
 }

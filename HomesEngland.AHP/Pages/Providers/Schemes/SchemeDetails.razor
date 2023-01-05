@@ -8,12 +8,20 @@
 {
     <Caption CaptionSize="CaptionSize.Large">@Scheme.SchemeName</Caption>
 }
-<PageHeading>Scheme details</PageHeading>
-@*<PageHeadingActionLinkContainer Heading="Scheme Details">
-    <ActionLinks>
-        <ActionLink Href="@($"/providers/byid/{ProviderId}/schemes/expenses/create")">Claim expense</ActionLink>
-    </ActionLinks>
-</PageHeadingActionLinkContainer>*@
+
+@if (RevenueFundingEnabled)
+{
+    <PageHeadingActionLinkContainer Heading="Scheme Details">
+        <ActionLinks>
+            <ActionLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/revenueFunding/create")">Claim revenue funding</ActionLink>
+        </ActionLinks>
+    </PageHeadingActionLinkContainer>
+}
+else
+{
+    <PageHeading>Scheme details</PageHeading>
+
+}
 
 @if (Scheme != null)
 {
@@ -120,7 +128,15 @@
                     }
                     else
                     {
-                        <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
+                        bool isSplitPending = GrantMilestoneSplitRequests != null && GrantMilestoneSplitRequests.Any(_ => _.GrantMilestoneId == milestone.GrantMilestoneId && _.StatusName != "Approved");
+                        if (isSplitPending)
+                        {
+                            <Tag Color="TagColor.Orange">Split pending approval</Tag>
+                        }
+                        else
+                        {
+                            <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
+                        }
                     }
 
                 </GovTableData>
@@ -132,13 +148,30 @@
         <Inset>No grant milestones have been created against this scheme</Inset>
     }
 
-    @if (Scheme.TotalRevenueFundingAmount > 0)
+    @if (RevenueFundingEnabled)
     {
         <Heading Size="HeadingSize.Medium">Revenue funding</Heading>
-        <Inset>No revenue funding claims have been assigned to this scheme</Inset>
+        if (Scheme.TotalRevenueFundingAmount == 0 || RevenueClaims == null || !RevenueClaims.Any())
+        {
+            <Inset>No revenue funding claims have been assigned to this scheme, <a Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/revenueFunding/create")">submit a new claim</a>.</Inset>
+
+        }
+        else
+        {
+            <GovTable Items="RevenueClaims" Context="claim">
+                <Header>
+                    <GovTableHeader>Payment date</GovTableHeader>
+                    <GovTableHeader>Amount</GovTableHeader>
+                </Header>
+                <RowTemplate>
+                    <GovTableData><LiteralDate Value="@claim.PaymentDate"></LiteralDate></GovTableData>
+
+                    <GovTableData><Currency Amount="@claim.ClaimAmount"></Currency></GovTableData>
+                 
+                </RowTemplate>
+            </GovTable>
+        }
     }
-
-
 }
 else
 {
@@ -150,6 +183,8 @@ else
     private Provider? Provider { get; set; }
 
     private IEnumerable<GrantMilestone>? GrantMilestones { get; set; }
+    private IEnumerable<GrantMilestoneSplitRequestStatus>? GrantMilestoneSplitRequests { get; set; }
+    public IEnumerable<SchemeRevenueClaim>? RevenueClaims { get; set; }
 
     [Parameter]
     public Guid ProviderId { get; set; }
@@ -161,6 +196,8 @@ else
 
     public string PageTitle { get; set; } = "Scheme details";
 
+    public bool RevenueFundingEnabled { get; set; } = false;
+
     protected override async Task OnInitializedAsync()
     {
         Scheme = await repo.GetScheme(SchemeId);
@@ -169,6 +206,18 @@ else
         if (Provider != null && Scheme != null)
         {
             GrantMilestones = await repo.GetGrantMilestones(SchemeId);
+            GrantMilestoneSplitRequests = await repo.GetGrantMilestoneSplitStatus(SchemeId);
+
+            var programmeFeatures = await repo.GetProgrammeFeatures(Scheme.ProgrammeId);
+            if (programmeFeatures != null && programmeFeatures.Any())
+            {
+                RevenueFundingEnabled = programmeFeatures.Any(_ => _.Feature.FeatureKey == FeatureKeys.EnableRevenueFunding);
+                if (RevenueFundingEnabled)
+                {
+                    RevenueClaims = await repo.GetSchemeRevenueClaims(SchemeId);
+                }
+            }
+
             PageTitle = $"{Scheme.SchemeName} - Scheme details";
         }
     }

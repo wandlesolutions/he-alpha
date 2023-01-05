@@ -2,6 +2,7 @@ using BearerClient;
 using HomesEngland.AHP.Data;
 using HomesEngland.AHP.DynamicsClient;
 using HomesEngland.AHP.Operations.Properties;
+using HomesEngland.AHP.Pages.Providers.GrantMilestones;
 using Microsoft.EntityFrameworkCore;
 using WandleSolutions.Common.ApiClient;
 
@@ -50,6 +51,8 @@ if (repository == "dynamics")
 
 		return new DynamicsRepository(httpClientFactory, "dynamicsEnvironment", tokenProvider, cancellationTokenProvider);
 	});
+
+	builder.Services.AddSingleton<ISplitMilestoneService, DynamicsSplitMilestoneService>();
 }
 else
 {
@@ -62,6 +65,8 @@ else
 	builder.Services.AddScoped<IGrantRepository, SqlGrantRepository>();
 
 	builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+	builder.Services.AddSingleton<ISplitMilestoneService, SqlSplitMilestoneService>();
 
 }
 

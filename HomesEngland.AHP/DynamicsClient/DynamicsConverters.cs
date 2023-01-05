@@ -89,7 +89,6 @@ public static class DynamicsConverters
 			Address2 = propertyEntity.Address2,
 			ExpensesAmount = propertyEntity.ExpensesAmount,
 			GrantAmount = propertyEntity.GrantAmount,
-			LocalAuthority = propertyEntity?.LocalAuthority?.LocalAuthorityName,
 			Postcode = propertyEntity.Postcode,
 			PropertyId = propertyEntity.PropertyId,
 			PropertyName = propertyEntity.PropertyName,

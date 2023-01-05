@@ -4,6 +4,7 @@
 @inject IServiceProvider serviceProvider
 @inject IGrantRepository grantRepo
 @inject NavigationManager navManager
+@inject ISplitMilestoneService splitMilestoneService
 
 <PageTitle>Update grant milestone</PageTitle>
 
@@ -80,6 +81,45 @@
 
                     }
 
+                    @if (CompletionScreen == "split")
+                    {
+                        <Paragraph>
+                            You are about to split this milestone into two seperate milestone. This will create an additional milestone with the specified amount and target date. This milestone will be updated with the remaining amount.
+                        </Paragraph>
+
+                        <DataList>
+                            <DataRow>
+                                <DataTerm>Programme:</DataTerm>
+                                <DataDefinition>@Scheme.Programme.ProgrammeName</DataDefinition>
+                            </DataRow>
+                            <DataRow>
+                                <DataTerm>Scheme:</DataTerm>
+                                <DataDefinition>@Scheme.SchemeName</DataDefinition>
+                            </DataRow>
+                            <DataRow>
+                                <DataTerm>Existng grant amount:</DataTerm>
+                                <DataDefinition>
+                                    <Currency Amount="@GrantMilestone.MilestoneGrantAmount"></Currency>
+                                </DataDefinition>
+                            </DataRow>
+                            <DataRow>
+                                <DataTerm>Existing milestone completion date:</DataTerm>
+                                <DataDefinition>
+                                    <LiteralDate Value="GrantMilestone.TargetDate"></LiteralDate>
+                                </DataDefinition>
+                            </DataRow>
+                        </DataList>
+
+                        <FormLayout OnSubmit="OnSplit" EditContext="splitEditContext">
+                            <FormInputMoney Id="createdMilestoneAmount" @bind-Value="SplitMilestoneRequest.CreatedMilestoneAmount" DisplayName="New milestone amount" Label="New milestone amount"></FormInputMoney>
+                            <FormInputDate Id="createdMilestoneDate" @bind-Value="SplitMilestoneRequest.CreatedMilestoneDate" Label="New milestone target date"></FormInputDate>
+
+                            <CustomValidation @ref="customValidation"></CustomValidation>
+
+                            <SubmitButton Disabled="disableSubmitButton" Label="Update milestone" />
+                        </FormLayout>
+                    }
+
                     @if(CompletionScreen == "schemeNotApproved")
                     {
                         <Warning>This scheme is not approved, so completing milestones is not available until approval has been granted.</Warning>
@@ -101,6 +141,9 @@
     private GrantMilestoneUpdateFormModel CreateModel = new();
     private bool disableSubmitButton = false;
     private EditContext? editContext;
+
+    private SplitMilestoneFormModel SplitMilestoneRequest = new();
+    private EditContext? splitEditContext;
 
     private CustomValidation? customValidation;
 
@@ -133,6 +176,9 @@
     {
         editContext = new(CreateModel);
         editContext.EnableDataAnnotationsValidation(serviceProvider);
+
+        splitEditContext = new(SplitMilestoneRequest);
+        splitEditContext.EnableDataAnnotationsValidation(serviceProvider);
 
         Provider = await grantRepo.GetProvider(ProviderId);
         Scheme = await grantRepo.GetScheme(SchemeId);
@@ -168,7 +214,7 @@
     {
         pageState = PageStatus.PerformingAction;
         disableSubmitButton = true;
-        
+
         if (CreateModel.TargetDate.HasValue
         && CreateModel.TargetDate.Value < DateTime.Now)
         {
@@ -182,6 +228,40 @@
             try
             {
                 await grantRepo.UpdateGrantMilestoneDate(GrantMilestoneId, CreateModel.TargetDate.Value);
+                navManager.NavigateTo($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}");
+
+            }
+            catch (Exception)
+            {
+                //customValidation?.DisplayErrors(result.ModelState);
+                disableSubmitButton = false;
+                pageState = PageStatus.Visible;
+            }
+
+        }
+        else
+        {
+            disableSubmitButton = false;
+            pageState = PageStatus.Visible;
+        }
+    }
+
+    public async Task OnSplit()
+    {
+        pageState = PageStatus.PerformingAction;
+        disableSubmitButton = true;
+
+        if (editContext != null && editContext.Validate())
+        {
+            try
+            {
+                await splitMilestoneService.SplitMilestone(new SplitMilestoneRequest()
+                {
+                        CreatedMilestoneAmount = SplitMilestoneRequest.CreatedMilestoneAmount.Value,
+                        CreatedMilestoneDate = SplitMilestoneRequest.CreatedMilestoneDate.Value,
+                        ExistingMilestoneId = GrantMilestoneId,
+                });
+                
                 navManager.NavigateTo($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}");
 
             }
