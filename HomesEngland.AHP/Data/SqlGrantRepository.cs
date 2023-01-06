@@ -390,4 +390,14 @@ public class SqlGrantRepository : IGrantRepository
 			.OrderBy(_ => _.PaymentDate)
 			.ToListAsync();
 	}
+
+	public async Task<IEnumerable<string>> GetFeatureKeysForProgramme(Guid programmeId)
+	{
+		using var context = GetContext();
+
+		return await context.ProgrammeFeatures
+			.Where(_ => _.ProgrammeId == programmeId)
+			.Select(_ => _.Feature.FeatureKey)
+			.ToListAsync();
+	}
 }

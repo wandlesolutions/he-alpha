@@ -211,10 +211,10 @@ else
             GrantMilestones = await repo.GetGrantMilestones(SchemeId);
             GrantMilestoneSplitRequests = await repo.GetGrantMilestoneSplitStatus(SchemeId);
 
-            var programmeFeatures = await repo.GetProgrammeFeatures(Scheme.ProgrammeId);
+            IEnumerable<string> programmeFeatures = await repo.GetFeatureKeysForProgramme(Scheme.ProgrammeId);
             if (programmeFeatures != null && programmeFeatures.Any())
             {
-                RevenueFundingEnabled = programmeFeatures.Any(_ => _.Feature.FeatureKey == FeatureKeys.EnableRevenueFunding);
+                RevenueFundingEnabled = programmeFeatures.Any(_ => _ == FeatureKeys.EnableRevenueFunding);
                 if (RevenueFundingEnabled)
                 {
                     RevenueClaims = await repo.GetSchemeRevenueClaims(SchemeId);

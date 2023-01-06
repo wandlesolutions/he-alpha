@@ -475,4 +475,38 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 	{
 		return Task.FromResult(Enumerable.Empty<SchemeRevenueClaim>());
 	}
+
+	public async Task<IEnumerable<string>> GetFeatureKeysForProgramme(Guid programmeId)
+	{
+		var response = await GetAsync<FundingProgrammeForEnabledFeatures>($"{DynamicsEntityUrl.Programme}({programmeId})?$filter=statuscode eq 1&$select=hea_programmefeatures",
+			customHeaders: PreferHeaders);
+
+		if (response.IsSuccessful())
+		{
+			if (response == null
+				|| response.Content == null
+				|| string.IsNullOrWhiteSpace(response.Content.Features))
+			{
+				return Enumerable.Empty<string>();
+			}
+
+			List<string> features = new List<string>();
+			foreach (var item in response.Content.Features.Split(";"))
+			{
+				string featureName = item.Trim();
+
+				// Fix for dynamics vs SQL as dynamics doesn't have keys, only display names
+				if (featureName == "Revenue Claims")
+				{
+					featureName = FeatureKeys.EnableRevenueFunding;
+				}
+
+				features.Add(featureName);
+			}
+
+			return features;
+		}
+
+		throw new InvalidOperationException("Unable to query features");
+	}
 }

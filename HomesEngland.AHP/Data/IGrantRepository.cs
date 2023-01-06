@@ -29,6 +29,7 @@ public interface IGrantRepository
 	Task<IEnumerable<LocalAuthority>> GetLocalAuthorities();
 
 	Task<IEnumerable<ProgrammeFeature>> GetProgrammeFeatures(Guid programmeId);
+	Task<IEnumerable<string>> GetFeatureKeysForProgramme(Guid programmeId);
 
 	Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId);
 	Task<Property?> GetPropertyForProvider(Guid propertyId, Guid providerId);
