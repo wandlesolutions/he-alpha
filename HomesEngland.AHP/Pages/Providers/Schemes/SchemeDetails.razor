@@ -9,7 +9,10 @@
     <Caption CaptionSize="CaptionSize.Large">@Scheme.SchemeName</Caption>
 }
 
-@if (RevenueFundingEnabled)
+@if (Scheme != null
+    && RevenueFundingEnabled
+    && Scheme.TotalRevenueFundingAmount.HasValue
+    && Scheme.TotalRevenueFundingAmount > 0)
 {
     <PageHeadingActionLinkContainer Heading="Scheme Details">
         <ActionLinks>
@@ -20,7 +23,6 @@
 else
 {
     <PageHeading>Scheme details</PageHeading>
-
 }
 
 @if (Scheme != null)
@@ -68,22 +70,23 @@ else
                 }
             </DataDefinition>
         </DataRow>
+        @if (RevenueFundingEnabled)
+        {
+            <DataRow>
+                <DataTerm>Revenue funding amount:</DataTerm>
+                <DataDefinition>
 
-        <DataRow>
-            <DataTerm>Revenue funding amount:</DataTerm>
-            <DataDefinition>
-
-                @if (Scheme.TotalRevenueFundingAmount.HasValue)
-                {
-                    <Currency Amount="@Scheme.TotalRevenueFundingAmount"></Currency>
-                }
-                else
-                {
-                    <span class="govuk-hint">None assigned</span>
-                }
-            </DataDefinition>
-        </DataRow>
-
+                    @if (Scheme.TotalRevenueFundingAmount.HasValue)
+                    {
+                        <Currency Amount="@Scheme.TotalRevenueFundingAmount"></Currency>
+                    }
+                    else
+                    {
+                        <span class="govuk-hint">None assigned</span>
+                    }
+                </DataDefinition>
+            </DataRow>
+        }
         <DataRow>
             <DataTerm>Total funding:</DataTerm>
             <DataDefinition>
@@ -115,9 +118,6 @@ else
             <RowTemplate>
                 <GovTableRowHeader>
                     @milestone.MilestoneType.MilestoneTypeName
-
-
-
                 </GovTableRowHeader>
                 <GovTableData><Currency Amount="@milestone.MilestoneGrantAmount"></Currency></GovTableData>
                 <GovTableData><LiteralDate Value="@milestone.TargetDate"></LiteralDate></GovTableData>
@@ -138,7 +138,6 @@ else
                             <GovLink Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/grantMilestones/byid/{milestone.GrantMilestoneId}/update")">Update</GovLink>
                         }
                     }
-
                 </GovTableData>
             </RowTemplate>
         </GovTable>
@@ -151,7 +150,11 @@ else
     @if (RevenueFundingEnabled)
     {
         <Heading Size="HeadingSize.Medium">Revenue funding</Heading>
-        if (Scheme.TotalRevenueFundingAmount == 0 || RevenueClaims == null || !RevenueClaims.Any())
+        if (Scheme.TotalRevenueFundingAmount == 0)
+        {
+            <Inset>This scheme has no revenue funding assigned.</Inset>
+        }
+        else if( RevenueClaims == null || !RevenueClaims.Any())
         {
             <Inset>No revenue funding claims have been assigned to this scheme, <a Href="@($"/providers/byid/{ProviderId}/schemes/byid/{SchemeId}/revenueFunding/create")">submit a new claim</a>.</Inset>
 
@@ -167,7 +170,7 @@ else
                     <GovTableData><LiteralDate Value="@claim.PaymentDate"></LiteralDate></GovTableData>
 
                     <GovTableData><Currency Amount="@claim.ClaimAmount"></Currency></GovTableData>
-                 
+
                 </RowTemplate>
             </GovTable>
         }

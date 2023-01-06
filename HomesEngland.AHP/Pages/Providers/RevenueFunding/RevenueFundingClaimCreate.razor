@@ -20,6 +20,7 @@
 
             @if (Scheme != null)
             {
+                <Paragraph>This scheme has a total of <Currency Amount="@Scheme.TotalRevenueFundingAmount"></Currency> revenue funding, with <Currency Amount="ExistingAllocatedClaims"></Currency> allocated and <Currency Amount="RemainingAmount"></Currency> remaining.</Paragraph>
                 <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                     <FormInputMoney Id="claimAmount" @bind-Value="CreateModel.ClaimAmount" Label="Claim amount"></FormInputMoney>
                     <FormInputDate Id="paymentDate" @bind-Value="CreateModel.PaymentDate" Label="Payment date"></FormInputDate>
@@ -60,6 +61,9 @@
     [CascadingParameter]
     public MainLayout? MainLayout { get; set; }
 
+    public decimal? ExistingAllocatedClaims { get; set; }
+    public decimal? RemainingAmount { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         editContext = new(CreateModel);
@@ -67,7 +71,10 @@
 
         Scheme = await grantRepo.GetScheme(SchemeId.Value);
         Provider = await grantRepo.GetProvider(ProviderId.Value);
-
+        var existingClaims = await grantRepo.GetSchemeRevenueClaims(SchemeId.Value);
+        ExistingAllocatedClaims = existingClaims.Sum(x => x.ClaimAmount);
+        RemainingAmount = Scheme.TotalRevenueFundingAmount - ExistingAllocatedClaims;
+        
         if (Scheme != null)
         {
             pageState = PageStatus.Visible;
