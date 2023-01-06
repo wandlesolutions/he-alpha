@@ -24,4 +24,7 @@ public class SchemeRevenueClaim
 	public Guid FinancialYearId { get; set; }
 
 	public FinancialYear? FinancialYear { get; set; }
+
+	[Required]
+	public bool Appproved { get; set; }
 }

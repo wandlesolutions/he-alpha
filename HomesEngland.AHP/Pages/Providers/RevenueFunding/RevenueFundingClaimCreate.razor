@@ -15,7 +15,7 @@
 
 
 <PageContentContainer>
-    <PageStatusContainer PageStatus="pageState" EntityName="property">
+    <PageStatusContainer PageStatus="pageState" EntityName="revenue funding claim">
         <MainContents>
 
             @if (Scheme != null)
@@ -117,6 +117,7 @@
                     PaymentDate = CreateModel.PaymentDate.Value,
                     Created = DateTime.UtcNow,
                     FinancialYearId = financialYear.FinanicalYearId,
+                    Appproved = true,
                 };
 
             var result = await grantRepo.CreateSchemeRevenueClaim(schemeRevenueClaim);

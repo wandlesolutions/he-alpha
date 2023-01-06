@@ -128,7 +128,9 @@ else
                     }
                     else
                     {
-                        bool isSplitPending = GrantMilestoneSplitRequests != null && GrantMilestoneSplitRequests.Any(_ => _.GrantMilestoneId == milestone.GrantMilestoneId && _.StatusName != "Approved");
+                        bool isSplitPending = GrantMilestoneSplitRequests != null 
+                        && GrantMilestoneSplitRequests.Any(_ => _.GrantMilestoneId == milestone.GrantMilestoneId
+                        && _.StatusName == "Pending Approval");
                         if (isSplitPending)
                         {
                             <Tag Color="TagColor.Orange">Split pending approval</Tag>
@@ -165,11 +167,23 @@ else
                 <Header>
                     <GovTableHeader>Payment date</GovTableHeader>
                     <GovTableHeader>Amount</GovTableHeader>
+                    <GovTableHeader>Status</GovTableHeader>
                 </Header>
                 <RowTemplate>
                     <GovTableData><LiteralDate Value="@claim.PaymentDate"></LiteralDate></GovTableData>
 
                     <GovTableData><Currency Amount="@claim.ClaimAmount"></Currency></GovTableData>
+                    <GovTableData>
+                        @if (claim.Appproved)
+                        {
+                            <Tag Color="TagColor.Green">Approved</Tag>
+                        }
+                        else
+                        {
+                            <Tag Color="TagColor.Grey">Pending approval</Tag>
+
+                        }
+                        </GovTableData>
 
                 </RowTemplate>
             </GovTable>

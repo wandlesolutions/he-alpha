@@ -21,11 +21,13 @@
             {
                 <FormLayout OnSubmit="OnSubmit" EditContext="editContext">
                     <FormInputText Id="schemeName" @bind-Value="CreateModel.SchemeName" Label="Scheme name" Width="TextboxWidth.OneHalf"></FormInputText>
-                    <FormSelect Id="programmeId" @bind-Value="CreateModel.ProgrammeId" Label="Programme" Items="Programmes" NoItemsText="There are no programmes enabled to your to create new schemes in"></FormSelect>
+                    <FormSelect Id="programmeId" Label="Programme" Items="Programmes" NoItemsText="There are no programmes enabled to your to create new schemes in" ValueChanged="ProgrammeChanged"></FormSelect>
                     <FormSelect Id="localAuthorityId" @bind-Value="CreateModel.LocalAuthorityId" Label="Local authority" Items="LocalAuthorities" NoItemsText="There are no local authorities associate with this scheme"></FormSelect>
                     <FormInputMoney Id="grantAmount" @bind-Value="CreateModel.GrantAmount" Label="Grant amount"></FormInputMoney>
-                    <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Revenue amount"></FormInputMoney>
-
+                    @if (RevenueFundingEnabled)
+                    {
+                        <FormInputMoney Id="expensesAmount" @bind-Value="CreateModel.ExpensesAmount" Label="Revenue amount"></FormInputMoney>
+                    }
                     <CustomValidation @ref="customValidation"></CustomValidation>
 
                     <SubmitButton Disabled="disableSubmitButton" Label="Create scheme" />
@@ -54,7 +56,7 @@
 
     private PageStatus pageState { get; set; } = PageStatus.Loading;
 
-
+    private bool RevenueFundingEnabled = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -138,5 +140,26 @@
             disableSubmitButton = false;
             pageState = PageStatus.Visible;
         }
+    }
+
+    public async Task ProgrammeChanged(string newValue)
+    {
+        CreateModel.ProgrammeId = newValue;
+
+        if (string.IsNullOrWhiteSpace(newValue))
+        {
+            RevenueFundingEnabled = false;
+            CreateModel.ExpensesAmount = 0;
+        }
+        else
+        {
+            var featuresForProgramme = await grantRepo.GetFeatureKeysForProgramme(new Guid(newValue));
+            RevenueFundingEnabled = featuresForProgramme.Contains(FeatureKeys.EnableRevenueFunding);
+            if (!RevenueFundingEnabled)
+            {
+                CreateModel.ExpensesAmount = 0;
+            }
+        }
+
     }
 }

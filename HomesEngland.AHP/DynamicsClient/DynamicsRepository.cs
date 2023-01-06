@@ -174,7 +174,20 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public Task<IEnumerable<FinancialYear>> GetFinancialYears()
 	{
-		throw new NotImplementedException();
+		List<FinancialYear> financialYears = new();
+		// Generate financial years from 2020 to 2030
+		for (int i = 2020; i <= 2030; i++)
+		{
+			financialYears.Add(new FinancialYear
+			{
+				FinanicalYearId = Guid.NewGuid(),
+				FinancialYearName = $"{i}/{i + 1}",
+				StartDate = new DateTime(i, 4, 1),
+				EndDate = new DateTime(i + 1, 3, 31),
+			});
+		}
+
+		return Task.FromResult<IEnumerable<FinancialYear>>(financialYears);
 	}
 
 	public async Task<GrantMilestone?> GetGrantMilestone(Guid grantMilestoneId)
@@ -204,7 +217,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 			return Enumerable.Empty<GrantMilestone>();
 		}
 
-		return response.Content.Value.Select(_ => _.ToModel());
+		return response.Content.Value.Select(_ => _.ToModel()).OrderBy(_ => _.TargetDate);
 	}
 
 	public Task<IEnumerable<GrantMilestoneTemplate>> GetGrantMilestoneTemplates(Guid programmeId)
@@ -466,14 +479,51 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		return results;
 	}
 
-	public Task<SchemeRevenueClaim> CreateSchemeRevenueClaim(SchemeRevenueClaim schemeRevenueClaim)
+	public async Task<SchemeRevenueClaim> CreateSchemeRevenueClaim(SchemeRevenueClaim schemeRevenueClaim)
 	{
-		throw new NotImplementedException();
+		RevenueFundingClaimEntityCreateRequest createEntity = new()
+		{
+			AmountClaimed = schemeRevenueClaim.ClaimAmount,
+			ForecastPaymentDate = schemeRevenueClaim.PaymentDate,
+			Scheme = new AssociatedEntity(schemeRevenueClaim.SchemeId, DynamicsEntityUrl.Scheme),
+		};
+
+		var createRequest = await PostAsync<NoContentResponse, RevenueFundingClaimEntityCreateRequest>(DynamicsEntityUrl.RevenueFundingClaims, createEntity);
+		if (createRequest.IsSuccessful())
+		{
+			Guid? entityId = ExtractEntityKey(createRequest.Headers);
+			if (entityId.HasValue)
+			{
+				return await GetSchemeRevenueClaim(entityId.Value);
+			}
+		}
+
+		return null;
+	}
+	public async Task<SchemeRevenueClaim?> GetSchemeRevenueClaim(Guid schemeRevenueClaimId)
+	{
+		var response = await GetAsync<RevenueFundingClaimEntity>($"{DynamicsEntityUrl.RevenueFundingClaims}({schemeRevenueClaimId})?$select={RevenueFundingClaimEntity.QueryFields}&$expand=hea_ProgrammeScheme",
+			customHeaders: PreferHeaders);
+
+		if (!response.IsSuccessful() || response.Content == null)
+		{
+			throw new InvalidOperationException($"failed to get scheme revenue claims. status code: {response.StatusCode}");
+		}
+
+		return response.Content.ToModel();
 	}
 
-	public Task<IEnumerable<SchemeRevenueClaim>> GetSchemeRevenueClaims(Guid schemeId)
+	public async Task<IEnumerable<SchemeRevenueClaim>> GetSchemeRevenueClaims(Guid schemeId)
 	{
-		return Task.FromResult(Enumerable.Empty<SchemeRevenueClaim>());
+		var response = await GetAsync<DynamicsReponseWrapper<RevenueFundingClaimEntity>>($"{DynamicsEntityUrl.RevenueFundingClaims}?$filter=_hea_programmescheme_value eq {schemeId}&$select={RevenueFundingClaimEntity.QueryFields}&$expand=hea_ProgrammeScheme",
+			customHeaders: PreferHeaders);
+
+		if (!response.IsSuccessful() || response.Content == null || response.Content.Value == null)
+		{
+			throw new InvalidOperationException($"failed to get scheme revenue claims. status code: {response.StatusCode}");
+		}
+
+		return response.Content.Value.Select(_ => _.ToModel()).OrderBy(_ => _.PaymentDate);
 	}
 
 	public async Task<IEnumerable<string>> GetFeatureKeysForProgramme(Guid programmeId)

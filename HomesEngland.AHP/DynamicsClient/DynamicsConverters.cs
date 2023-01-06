@@ -116,4 +116,20 @@ public static class DynamicsConverters
 			TargetDate = grantMilestoneEntity.TargetDate,
 		};
 	}
+
+	// Convert RevenueFundingClaimEntity to RevenueFundingClaim
+	public static SchemeRevenueClaim ToModel(this RevenueFundingClaimEntity revenueFundingClaimEntity)
+	{
+		return new SchemeRevenueClaim()
+		{
+			ClaimAmount = revenueFundingClaimEntity.AmountClaimed,
+
+			SchemeId = revenueFundingClaimEntity.SchemeId,
+			Scheme = revenueFundingClaimEntity.Scheme?.ToModel(),
+			Created = revenueFundingClaimEntity.Created,
+			PaymentDate = revenueFundingClaimEntity.ForecastPaymentDate.Value,
+			SchemeRevenueClaimId = revenueFundingClaimEntity.SchemeExpenseClaimId,
+			Appproved = revenueFundingClaimEntity.StatusName == "Active",
+		};
+	}
 }

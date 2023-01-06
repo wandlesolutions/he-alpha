@@ -10,4 +10,5 @@ public class DynamicsEntityUrl
 	public static string Properties = "hea_schemeproperties";
 	public static string Provider = "accounts";
 	public static string LocalAuthority = "accounts";
+	public static string RevenueFundingClaims = "hea_schemeexpenseclaims";
 }
