@@ -21,10 +21,10 @@ public class RevenueFundingClaimEntity
 	[JsonProperty("hea_forecastpaymentdate")]
 	public DateTimeOffset? ForecastPaymentDate { get; set; }
 
-	[JsonProperty("statecode@OData.Community.Display.V1.FormattedValue")]
+	[JsonProperty("statuscode@OData.Community.Display.V1.FormattedValue")]
 	public string? StatusName { get; set; }
 
-	[JsonProperty("statecode")]
+	[JsonProperty("statuscode")]
 	public int? StatusCode { get; set; }
 
 	[JsonProperty("createdon")]
