@@ -1,5 +1,5 @@
-# he-alpha
-Homes England - Affordable Homes Alpha
+# Homes England - Affordable Homes Alpha
+
 
 A prototype produced as part of the Affordable Homes England alpha to test connectivity between .NET and Dynamics 365.
 
