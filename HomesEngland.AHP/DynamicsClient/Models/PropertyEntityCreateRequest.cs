@@ -19,14 +19,11 @@ public class PropertyEntityCreateRequest
 	[JsonProperty("hea_postcode")]
 	public string? Postcode { get; set; }
 
-	[JsonProperty("hea_LocalAuthority@odata.bind")]
-	public AssociatedEntity? LocalAuthority { get; set; }
+	//[JsonProperty("hea_LocalAuthority@odata.bind")]
+	//public AssociatedEntity? LocalAuthority { get; set; }
 
 	[JsonProperty("hea_grantamount")]
 	public decimal? GrantAmount { get; set; }
-
-	[JsonProperty("hea_expenselimit")]
-	public decimal? ExpensesAmount { get; set; }
 
 	[JsonProperty("hea_totalamount")]
 	public decimal? TotalAmount { get; set; }

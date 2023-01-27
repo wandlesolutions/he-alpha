@@ -87,7 +87,6 @@ public static class DynamicsConverters
 		{
 			Address1 = propertyEntity.Address1,
 			Address2 = propertyEntity.Address2,
-			ExpensesAmount = propertyEntity.ExpensesAmount,
 			GrantAmount = propertyEntity.GrantAmount,
 			Postcode = propertyEntity.Postcode,
 			PropertyId = propertyEntity.PropertyId,
@@ -129,7 +128,7 @@ public static class DynamicsConverters
 			Created = revenueFundingClaimEntity.Created,
 			PaymentDate = revenueFundingClaimEntity.ForecastPaymentDate.Value,
 			SchemeRevenueClaimId = revenueFundingClaimEntity.SchemeExpenseClaimId,
-			Appproved = revenueFundingClaimEntity.StatusName == "Active",
+			Appproved = revenueFundingClaimEntity.StatusName == "Active" || revenueFundingClaimEntity.StatusName == "Processed",
 		};
 	}
 }

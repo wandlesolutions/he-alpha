@@ -4,7 +4,7 @@ namespace HomesEngland.AHP.DynamicsClient.Models;
 
 public class RevenueFundingClaimEntity
 {
-	public const string QueryFields = "hea_schemeexpenseclaimid,hea_amountclaimed,_hea_programmescheme_value,hea_forecastpaymentdate,statecode,createdon";
+	public const string QueryFields = "hea_schemeexpenseclaimid,hea_amountclaimed,_hea_programmescheme_value,hea_forecastpaymentdate,statuscode,createdon";
 
 	[JsonProperty("hea_schemeexpenseclaimid")]
 	public Guid SchemeExpenseClaimId { get; set; }

@@ -30,8 +30,5 @@ public class Property
 	public decimal? GrantAmount { get; set; }
 
 	[Column(TypeName = ColumnTypes.Money)]
-	public decimal? ExpensesAmount { get; set; }
-
-	[Column(TypeName = ColumnTypes.Money)]
 	public decimal? TotalAmount { get; set; }
 }

@@ -39,36 +39,6 @@
                 }
             </DataDefinition>
         </DataRow>
-
-        <DataRow>
-            <DataTerm>Revenue funding amount:</DataTerm>
-            <DataDefinition>
-
-                @if (Property.ExpensesAmount.HasValue)
-                {
-                    <Currency Amount="@Property.ExpensesAmount"></Currency>
-                }
-                else
-                {
-                    <span class="govuk-hint">None assigned</span>
-                }
-            </DataDefinition>
-        </DataRow>
-
-        <DataRow>
-            <DataTerm>Total funding:</DataTerm>
-            <DataDefinition>
-
-                @if (Property.TotalAmount.HasValue)
-                {
-                    <Currency Amount="@Property.TotalAmount"></Currency>
-                }
-                else
-                {
-                    <span class="govuk-hint">None assigned</span>
-                }
-            </DataDefinition>
-        </DataRow>
     </DataList>
 }
 else

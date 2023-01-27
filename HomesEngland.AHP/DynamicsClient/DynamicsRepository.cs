@@ -91,7 +91,6 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 		{
 			Address1 = property.Address1,
 			Address2 = property.Address2,
-			ExpensesAmount = property.ExpensesAmount,
 			GrantAmount = property.GrantAmount,
 			Postcode = property.Postcode,
 			PropertyName = property.PropertyName,
@@ -271,7 +270,7 @@ public class DynamicsRepository : BearerBaseApiClient, IGrantRepository
 
 	public async Task<IEnumerable<Property>> GetPropertiesForProvider(Guid providerId)
 	{
-		var response = await GetAsync<DynamicsReponseWrapper<PropertyEntity>>($"hea_schemeproperties?$select={PropertyEntity.QueryFields}&$expand=hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields}),hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
+		var response = await GetAsync<DynamicsReponseWrapper<PropertyEntity>>($"hea_schemeproperties?$filter=hea_ProgrammeScheme/_hea_schemeprovider_value eq {providerId}&$select={PropertyEntity.QueryFields}&$expand=hea_LocalAuthority($select={LocalAuthorityEntity.QueryFields}),hea_ProgrammeScheme($select={SchemeEntity.QueryFields})");
 
 		IEnumerable<Guid> programmeIds = response.Content.Value.Select(_ => _.Scheme?.ProgrammeId)
 			.Where(_ => _.HasValue)

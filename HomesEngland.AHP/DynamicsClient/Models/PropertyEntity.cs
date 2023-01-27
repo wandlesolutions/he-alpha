@@ -4,7 +4,7 @@ namespace HomesEngland.AHP.DynamicsClient.Models;
 
 public class PropertyEntity
 {
-	public const string QueryFields = "hea_schemepropertyid,hea_name,_hea_programmescheme_value,hea_addressline1,hea_addressline2,hea_postcode,hea_grantamount,hea_expenselimit,hea_totalamount";
+	public const string QueryFields = "hea_schemepropertyid,hea_name,_hea_programmescheme_value,hea_addressline1,hea_addressline2,hea_postcode,hea_grantamount,hea_totalamount";
 
 	[JsonProperty("hea_schemepropertyid")]
 	public Guid PropertyId { get; set; }
@@ -32,9 +32,6 @@ public class PropertyEntity
 
 	[JsonProperty("hea_grantamount")]
 	public decimal? GrantAmount { get; set; }
-
-	[JsonProperty("hea_expenselimit")]
-	public decimal? ExpensesAmount { get; set; }
 
 	[JsonProperty("hea_totalamount")]
 	public decimal? TotalAmount { get; set; }
